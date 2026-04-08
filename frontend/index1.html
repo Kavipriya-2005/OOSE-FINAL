@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passport Automation System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1>✈️ SwiftPass ✈️</h1>
+</header>
+
+<nav>
+    <a href="signup.html">Sign Up / Sign In</a>
+    <a href="instructions.html">Instructions</a>
+    <a href="apply.html">Apply Passport</a>
+    <a href="payment.html">Payment</a>
+    <a href="about.html">About Us</a>
+    <a href="terms.html">Terms</a>
+    <a href="tracking.html">Status</a>
+    <a href="#" onclick="handleLogout()" id="logoutBtn" style="display:none; color:#f87171;">Logout</a>
+</nav>
+
+<section class="info-strip">
+    <p>✔ Secure Application &nbsp; | &nbsp; ✔ Government Verified &nbsp; | &nbsp; ✔ 24×7 Online Access</p>
+</section>
+
+<section class="card">
+    <h2>Welcome, <span id="userName">Guest</span>!</h2>
+    <p class="subtitle">Apply for a passport online, upload documents, make payment and track status easily.</p>
+</section>
+
+<section class="stats">
+    <div class="stat-box">
+        <h3>1M+</h3>
+        <p>Applications Processed</p>
+    </div>
+    <div class="stat-box">
+        <h3>500+</h3>
+        <p>Verification Centers</p>
+    </div>
+    <div class="stat-box">
+        <h3>24×7</h3>
+        <p>Online Services</p>
+    </div>
+</section>
+
+<section class="announcements">
+    <h2>Latest Announcements</h2>
+    <ul>
+        <li>Online passport appointments are available for February 2026.</li>
+        <li>Police verification is mandatory for all first-time applicants.</li>
+        <li>Ensure uploaded documents are clear and valid.</li>
+        <li>Processing time may vary based on verification status.</li>
+    </ul>
+</section>
+
+<footer>
+    <p>© 2026 Passport Automation System | Government of India</p>
+</footer>
+
+<script>
+    // Show username if logged in
+    const name = localStorage.getItem('userName');
+    if (name) {
+        document.getElementById('userName').textContent = name;
+        document.getElementById('logoutBtn').style.display = 'inline';
+    }
+
+    function handleLogout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('application_id');
+        window.location.href = 'signup.html';
+    }
+</script>
+
+</body>
+</html>

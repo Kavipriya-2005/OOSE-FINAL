@@ -1,0 +1,280 @@
+/* General Page Styling */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #eef2f7;
+    margin: 0;
+}
+
+/* Header */
+header {
+    background: linear-gradient(90deg, #1e3a8a, #2563eb);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Navigation */
+nav {
+    background-color: #0f172a;
+    padding: 12px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    margin: 0 18px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Info Strip */
+.info-strip {
+    background-color: #e9f0fb;
+    text-align: center;
+    padding: 12px;
+    font-weight: 600;
+    color: #1e3a8a;
+}
+
+/* Card Layout */
+.card {
+    background-color: #ffffff;
+    width: 55%;
+    margin: 35px auto;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Heading */
+.card h2, .card h1 {
+    text-align: center;
+    color: #1e3a8a;
+    margin-bottom: 20px;
+}
+
+.card p {
+    text-align: center;
+    color: #374151;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.subtitle {
+    color: #555;
+    font-size: 16px;
+}
+
+/* Stats Section */
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin: 40px 0;
+    text-align: center;
+}
+
+.stat-box h3 {
+    font-size: 28px;
+    color: #1e3a8a;
+}
+
+.stat-box p {
+    color: #555;
+}
+
+/* Announcements Section */
+.announcements {
+    background-color: #ffffff;
+    width: 70%;
+    margin: 40px auto;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    border-left: 6px solid #1e3a8a;
+}
+
+.announcements h2 {
+    color: #1e3a8a;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.announcements ul {
+    list-style: none;
+    padding: 0;
+}
+
+.announcements li {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: #f5f8fc;
+    border-radius: 8px;
+    color: #444;
+    font-size: 15px;
+    line-height: 1.5;
+    position: relative;
+    padding-left: 35px;
+}
+
+.announcements li::before {
+    content: "📢";
+    position: absolute;
+    left: 10px;
+    top: 12px;
+}
+
+.announcements li:hover {
+    background-color: #e9f0fb;
+}
+
+/* Form Elements */
+form input,
+form select {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 15px;
+}
+
+form input:focus,
+form select:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #1e3a8a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #2563eb;
+}
+
+/* Labels (Upload Page) */
+label {
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Status Text */
+.status {
+    text-align: center;
+    font-size: 16px;
+    color: green;
+    margin-top: 15px;
+}
+
+/* Footer */
+footer {
+    background-color: #2563eb;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+}
+
+/* Thank You Message - For Index Page */
+.thank-you {
+    background-color: #10b981;
+    color: white;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.thank-you p {
+    margin: 0;
+}
+
+/* Welcome Section - For Index Page */
+#userName {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* Form Footer - For Sign In/Sign Up Links */
+.form-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.form-footer p {
+    color: #2773ec;
+    font-size: 14px;
+    margin: 0;
+}
+
+.form-footer a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.form-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Instructions Card */
+.instructions-card {
+    background-color: #ffffff;
+    width: 55%;
+    margin: 60px auto;
+    padding: 35px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Individual instruction row */
+.instruction-item {
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    background-color: #f5f8fc;
+    border-left: 5px solid #1e3a8a;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card {
+        width: 85%;
+    }
+    
+    .announcements {
+        width: 85%;
+    }
+    
+    .stats {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .instructions-card {
+        width: 85%;
+    }
+}

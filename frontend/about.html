@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About Us</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f3f6fb;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            padding: 32px 0;
+            text-align: center;
+        }
+
+        header h1 {
+            color: white;
+            font-size: 30px;
+            letter-spacing: 1px;
+        }
+
+        /* Main Card */
+        .card {
+            width: 70%;
+            margin: 60px auto;
+            background: white;
+            padding: 45px 55px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        .accent-line {
+            width: 80px;
+            height: 4px;
+            background: #1e3c72;
+            border-radius: 10px;
+            margin: 0 auto 25px auto;
+        }
+
+        .description {
+            text-align: center;
+            font-size: 17px;
+            line-height: 1.9;
+            color: #333;
+            margin-bottom: 45px;
+        }
+
+        /* Feature Section */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 45px;
+        }
+
+        .feature-box {
+            background: #f8faff;
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            border: 1px solid #e3e9f5;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(30, 60, 114, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+
+        .feature-text {
+            font-size: 14.5px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        /* Button */
+        .back-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(30, 60, 114, 0.4);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                width: 88%;
+                padding: 35px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>About Us</h1>
+</header>
+
+<section class="card">
+
+    <div class="accent-line"></div>
+
+    <p class="description">
+        Passport Automation System is a web-based application developed to streamline
+        passport application, verification, and issuance processes. The system reduces
+        manual workload, improves transparency, and ensures faster service delivery.
+    </p>
+
+    <!-- Interesting Feature Section -->
+    <div class="features">
+        <div class="feature-box">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">Faster Processing</div>
+            <div class="feature-text">
+                Automated workflows reduce delays and improve overall processing speed.
+            </div>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-title">Secure System</div>
+            <div class="feature-text">
+                User data and documents are handled securely with controlled access.
+            </div>
+        </div>
+
+        <div class="feature-box">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">Status Transparency</div>
+            <div class="feature-text">
+                Applicants can track application progress clearly at every stage.
+            </div>
+        </div>
+    </div>
+
+    <button class="back-btn" onclick="history.back()">⬅ Back</button>
+
+</section>
+
+</body>
+</html>

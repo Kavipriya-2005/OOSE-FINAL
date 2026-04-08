@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passport Application | SwiftPass</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
+
+        body { background-color: #eef2f7; }
+
+        /* ── HEADER ── */
+        header {
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white;
+            text-align: center;
+            padding: 28px 20px;
+        }
+        header h1 { font-size: 30px; letter-spacing: 1px; }
+
+        /* ── NAV ── */
+        nav {
+            background: #1e3a8a;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 8px 20px;
+        }
+        nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 13px;
+            padding: 7px 16px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        nav a:hover { background: rgba(255,255,255,0.15); color: white; }
+        nav a.active { background: white; color: #1e3a8a; font-weight: 700; }
+
+        /* ── MAIN CARD ── */
+        .card {
+            background: white;
+            width: 820px;
+            margin: 36px auto 48px;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+            overflow: hidden;
+        }
+
+        .card-title {
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── SECTION HEADERS ── */
+        .section-title {
+            background: #f0f4ff;
+            border-left: 4px solid #2563eb;
+            color: #1e3a8a;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* ── FORM BODY ── */
+        .form-body { padding: 20px 28px; }
+
+        /* ── GRIDS ── */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .span-2 { grid-column: span 2; }
+
+        /* ── FIELD ── */
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 12px; font-weight: 600; color: #374151; }
+        .field label .req { color: #dc2626; }
+
+        .field input,
+        .field select {
+            padding: 9px 12px;
+            border: 1.5px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #111827;
+            background: #f9fafb;
+            outline: none;
+            font-family: "Segoe UI", Arial, sans-serif;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .field input:focus, .field select:focus {
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+        }
+        .field select {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 32px;
+        }
+        .field-hint { font-size: 11px; color: #9ca3af; }
+
+        /* ── NOTICE ── */
+        .notice {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 3px solid #2563eb;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 12.5px;
+            color: #1e40af;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .notice.warn {
+            background: #fffbeb; border-color: #fcd34d;
+            border-left-color: #d97706; color: #92400e;
+        }
+
+        /* ── UPLOAD ── */
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+        .upload-card {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            background: #f9fafb;
+            position: relative;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .upload-card:hover { border-color: #2563eb; background: #eff6ff; }
+        .upload-card.done { border-color: #16a34a; background: #f0fdf4; }
+        .upload-card input[type="file"] {
+            position: absolute; inset: 0; opacity: 0;
+            cursor: pointer; width: 100%; height: 100%;
+        }
+        .upload-icon { font-size: 26px; margin-bottom: 6px; }
+        .upload-card h4 { font-size: 12px; font-weight: 700; color: #1e3a8a; margin-bottom: 3px; }
+        .upload-card p { font-size: 11px; color: #6b7280; line-height: 1.4; }
+        .upload-tag {
+            display: inline-block; margin-top: 7px; padding: 2px 8px;
+            border-radius: 10px; font-size: 10px; font-weight: 700;
+            background: #1e3a8a; color: white;
+        }
+        .upload-card.done .upload-tag { background: #15803d; }
+        .upload-filename {
+            display: none; font-size: 11px; color: #15803d;
+            font-weight: 600; margin-top: 4px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .upload-card.done .upload-filename { display: block; }
+        .upload-card.done .upload-default { opacity: 0.4; }
+
+        /* ── VERIFICATION FLOW ── */
+        .v-flow {
+            display: flex;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .v-step {
+            flex: 1; padding: 14px 10px; text-align: center;
+            border-right: 1px solid #e5e7eb;
+        }
+        .v-step:last-child { border-right: none; }
+        .v-num {
+            width: 26px; height: 26px; background: #1e3a8a; color: white;
+            border-radius: 50%; font-size: 12px; font-weight: 700;
+            display: inline-flex; align-items: center; justify-content: center;
+            margin-bottom: 6px;
+        }
+        .v-step h5 { font-size: 11px; font-weight: 700; color: #1e3a8a; margin-bottom: 3px; }
+        .v-step p { font-size: 10px; color: #6b7280; line-height: 1.4; }
+
+        /* ── DECLARATION ── */
+        .declaration {
+            background: #1e3a8a; border-radius: 8px;
+            padding: 20px 24px; color: white;
+        }
+        .declaration h4 { font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 10px; }
+        .declaration p { font-size: 12.5px; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 14px; }
+        .check-row {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .check-row input[type="checkbox"] {
+            width: 16px; height: 16px; accent-color: #fbbf24;
+            margin-top: 2px; flex-shrink: 0; cursor: pointer;
+        }
+        .check-row label { font-size: 12.5px; color: rgba(255,255,255,0.85); cursor: pointer; line-height: 1.5; }
+
+        /* ── BUTTONS ── */
+        .btn-row { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-submit {
+            flex: 1; padding: 13px;
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white; border: none; border-radius: 7px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-back {
+            padding: 13px 22px; background: white; color: #374151;
+            border: 1.5px solid #d1d5db; border-radius: 7px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+        }
+        .btn-back:hover { border-color: #6b7280; }
+
+        /* ── MSG ── */
+        .form-msg {
+            padding: 11px 14px; border-radius: 6px; font-size: 13px;
+            font-weight: 600; margin-top: 14px; display: none;
+        }
+        .form-msg.error { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; display: block; }
+        .form-msg.success { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; display: block; }
+
+        /* ── OVERLAY ── */
+        .overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55); z-index: 999;
+            align-items: center; justify-content: center;
+        }
+        .overlay.show { display: flex; }
+        .overlay-card {
+            background: white; border-radius: 14px; padding: 44px 36px;
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+            animation: pop 0.35s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes pop { from { transform:scale(0.8); opacity:0; } to { transform:scale(1); opacity:1; } }
+        .overlay-card .tick { font-size: 52px; margin-bottom: 12px; }
+        .overlay-card h2 { font-size: 22px; color: #1e3a8a; margin-bottom: 8px; }
+        .overlay-card p { font-size: 13px; color: #6b7280; margin-bottom: 18px; }
+        .id-box { background: #1e3a8a; color: white; padding: 14px 20px; border-radius: 8px; margin: 16px 0; }
+        .id-box small { font-size: 11px; opacity: 0.6; letter-spacing: 1px; text-transform: uppercase; }
+        .id-box strong { display: block; font-size: 22px; letter-spacing: 2px; color: #fbbf24; margin-top: 3px; }
+        .btn-proceed {
+            width: 100%; padding: 13px;
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white; border: none; border-radius: 7px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: #0f172a; color: rgba(255,255,255,0.5);
+            text-align: center; padding: 20px; font-size: 12px;
+        }
+
+        @media (max-width: 860px) {
+            .card { width: 96%; }
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+            .upload-grid { grid-template-columns: 1fr 1fr; }
+            .v-flow { flex-wrap: wrap; }
+        }
+        @media (max-width: 520px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .span-2 { grid-column: span 1; }
+            .upload-grid { grid-template-columns: 1fr; }
+            .form-body { padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<header><h1>✈️ SwiftPass ✈️</h1></header>
+
+<nav>
+    <a href="index1.html">Home</a>
+    <a href="instructions.html">Instructions</a>
+    <a href="apply.html" class="active">Apply Passport</a>
+    <a href="payment.html">Payment</a>
+    <a href="tracking.html">Track Status</a>
+    <a href="about.html">About Us</a>
+    <a href="signup.html">Sign In / Out</a>
+</nav>
+
+<div class="card">
+    <div class="card-title">✈ Passport Application Form</div>
+
+    <!-- SECTION 1 -->
+    <div class="section-title">👤 &nbsp;Section 1 — Applicant Details</div>
+    <div class="form-body">
+        <div class="grid-3">
+            <div class="field span-2">
+                <label>Full Name (as per Aadhaar) <span class="req">*</span></label>
+                <input type="text" id="full_name" placeholder="e.g. RAJESH KUMAR SHARMA" style="text-transform:uppercase;">
+                <span class="field-hint">Enter in BLOCK LETTERS — no initials</span>
+            </div>
+            <div class="field">
+                <label>Date of Birth <span class="req">*</span></label>
+                <input type="date" id="dob">
+            </div>
+            <div class="field">
+                <label>Gender <span class="req">*</span></label>
+                <select id="gender">
+                    <option value="">Select Gender</option>
+                    <option>Male</option><option>Female</option><option>Transgender</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Marital Status <span class="req">*</span></label>
+                <select id="marital_status">
+                    <option value="">Select Status</option>
+                    <option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Place of Birth <span class="req">*</span></label>
+                <input type="text" id="place_of_birth" placeholder="City / Town of birth">
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-title">📞 &nbsp;Section 2 — Contact Details</div>
+    <div class="form-body">
+        <div class="grid-3">
+            <div class="field">
+                <label>Mobile Number <span class="req">*</span></label>
+                <input type="tel" id="mobile" placeholder="10-digit number" maxlength="10">
+            </div>
+            <div class="field">
+                <label>Email Address <span class="req">*</span></label>
+                <input type="email" id="email" placeholder="yourname@email.com">
+            </div>
+            <div class="field">
+                <label>Nationality</label>
+                <input type="text" value="Indian" readonly style="background:#f3f4f6;color:#9ca3af;">
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-title">🏠 &nbsp;Section 3 — Residential Address</div>
+    <div class="form-body">
+        <div class="notice">ℹ️ &nbsp;Police verification will be conducted at this address. Ensure it is accurate and current.</div>
+        <div class="grid-2">
+            <div class="field span-2">
+                <label>House No. / Flat / Building <span class="req">*</span></label>
+                <input type="text" id="address_line1" placeholder="e.g. Flat 4B, Sunrise Apartments, MG Road">
+            </div>
+            <div class="field span-2">
+                <label>Street / Locality / Area <span class="req">*</span></label>
+                <input type="text" id="address" placeholder="e.g. Anna Nagar West">
+            </div>
+            <div class="field">
+                <label>State <span class="req">*</span></label>
+                <select id="state">
+                    <option value="">Select State</option>
+                    <option>Andhra Pradesh</option><option>Assam</option><option>Bihar</option>
+                    <option>Delhi</option><option>Gujarat</option><option>Karnataka</option>
+                    <option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option>
+                    <option>Rajasthan</option><option>Tamil Nadu</option><option>Telangana</option>
+                    <option>Uttar Pradesh</option><option>West Bengal</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>City / District <span class="req">*</span></label>
+                <input type="text" id="city" placeholder="e.g. Chennai">
+            </div>
+            <div class="field">
+                <label>Pincode <span class="req">*</span></label>
+                <input type="text" id="pincode" placeholder="6-digit pincode" maxlength="6">
+            </div>
+            <div class="field">
+                <label>Country</label>
+                <input type="text" value="India" readonly style="background:#f3f4f6;color:#9ca3af;">
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section-title">📘 &nbsp;Section 4 — Passport Service Details</div>
+    <div class="form-body">
+        <div class="grid-3">
+            <div class="field">
+                <label>Passport Service <span class="req">*</span></label>
+                <select id="service_type">
+                    <option value="">Select Service</option>
+                    <option>New Passport</option><option>Renewal</option><option>Lost / Damaged Passport</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Application Type <span class="req">*</span></label>
+                <select id="application_type" onchange="localStorage.setItem('application_type',this.value)">
+                    <option value="">Select Type</option>
+                    <option value="Normal">Normal — ₹1,500 (30–45 days)</option>
+                    <option value="Tatkal">Tatkal — ₹3,000 (7–14 days)</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Passport Booklet <span class="req">*</span></label>
+                <select id="booklet_type">
+                    <option value="">Select Pages</option>
+                    <option>36 Pages</option><option>60 Pages</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Emergency Contact Name</label>
+                <input type="text" id="emergency_name" placeholder="Next of kin name">
+            </div>
+            <div class="field">
+                <label>Emergency Contact Number</label>
+                <input type="tel" id="emergency_mobile" placeholder="10-digit number" maxlength="10">
+            </div>
+            <div class="field">
+                <label>Relationship</label>
+                <select id="emergency_relation">
+                    <option value="">Relation</option>
+                    <option>Father</option><option>Mother</option><option>Spouse</option>
+                    <option>Sibling</option><option>Guardian</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section-title">🪪 &nbsp;Section 5 — Identity Proof</div>
+    <div class="form-body">
+        <div class="grid-2">
+            <div class="field">
+                <label>Proof Type <span class="req">*</span></label>
+                <select id="proof_type">
+                    <option value="">Select Document</option>
+                    <option>Aadhaar Card</option><option>Voter ID Card</option>
+                    <option>PAN Card</option><option>Driving License</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Document Number <span class="req">*</span></label>
+                <input type="text" id="proof_number" placeholder="Enter document number">
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section-title">📂 &nbsp;Section 6 — Document Upload</div>
+    <div class="form-body">
+        <div class="notice warn">
+            ⚠️ &nbsp;<strong>Requirements:</strong> Clear colour scans, max <strong>2MB</strong> per file, formats: PDF / JPG / PNG. All documents are verified by the Passport Officer and local police.
+        </div>
+
+        <div class="upload-grid">
+            <div class="upload-card" id="uc-aadhaar">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleUpload(this,'uc-aadhaar','fn-aadhaar')">
+                <div class="upload-default">
+                    <div class="upload-icon">🪪</div>
+                    <h4>Aadhaar Card</h4>
+                    <p>Front & back on single page</p>
+                    <span class="upload-tag">MANDATORY</span>
+                </div>
+                <div class="upload-filename" id="fn-aadhaar"></div>
+            </div>
+
+            <div class="upload-card" id="uc-photo">
+                <input type="file" accept=".jpg,.jpeg,.png" onchange="handleUpload(this,'uc-photo','fn-photo')">
+                <div class="upload-default">
+                    <div class="upload-icon">📷</div>
+                    <h4>Passport-Size Photo</h4>
+                    <p>White background, recent</p>
+                    <span class="upload-tag">MANDATORY</span>
+                </div>
+                <div class="upload-filename" id="fn-photo"></div>
+            </div>
+
+            <div class="upload-card" id="uc-birth">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleUpload(this,'uc-birth','fn-birth')">
+                <div class="upload-default">
+                    <div class="upload-icon">📄</div>
+                    <h4>Date of Birth Proof</h4>
+                    <p>Birth cert / 10th marksheet</p>
+                    <span class="upload-tag">MANDATORY</span>
+                </div>
+                <div class="upload-filename" id="fn-birth"></div>
+            </div>
+
+            <div class="upload-card" id="uc-address">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleUpload(this,'uc-address','fn-address')">
+                <div class="upload-default">
+                    <div class="upload-icon">🏠</div>
+                    <h4>Address Proof</h4>
+                    <p>Electricity bill / Bank passbook</p>
+                    <span class="upload-tag">MANDATORY</span>
+                </div>
+                <div class="upload-filename" id="fn-address"></div>
+            </div>
+
+            <div class="upload-card" id="uc-pan">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleUpload(this,'uc-pan','fn-pan')">
+                <div class="upload-default">
+                    <div class="upload-icon">💳</div>
+                    <h4>PAN Card</h4>
+                    <p>Required for applicants above 18</p>
+                    <span class="upload-tag">IF APPLICABLE</span>
+                </div>
+                <div class="upload-filename" id="fn-pan"></div>
+            </div>
+
+            <div class="upload-card" id="uc-old">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleUpload(this,'uc-old','fn-old')">
+                <div class="upload-default">
+                    <div class="upload-icon">📘</div>
+                    <h4>Old Passport</h4>
+                    <p>First & last page (for renewal)</p>
+                    <span class="upload-tag">FOR RENEWAL</span>
+                </div>
+                <div class="upload-filename" id="fn-old"></div>
+            </div>
+        </div>
+
+        <!-- Verification Process -->
+        <div class="v-flow">
+            <div class="v-step">
+                <div class="v-num">1</div>
+                <h5>Officer Review</h5>
+                <p>Passport Officer checks uploaded docs</p>
+            </div>
+            <div class="v-step">
+                <div class="v-num">2</div>
+                <h5>PSK Verification</h5>
+                <p>Originals verified at Passport Seva Kendra</p>
+            </div>
+            <div class="v-step">
+                <div class="v-num">3</div>
+                <h5>Police Check</h5>
+                <p>Home address & background verified</p>
+            </div>
+            <div class="v-step">
+                <div class="v-num">4</div>
+                <h5>Final Clearance</h5>
+                <p>Approved by Passport Authority</p>
+            </div>
+            <div class="v-step">
+                <div class="v-num">5</div>
+                <h5>Dispatch</h5>
+                <p>Sent via Speed Post to your address</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="section-title">📜 &nbsp;Section 7 — Declaration & Consent</div>
+    <div class="form-body">
+        <div class="declaration">
+            <h4>Applicant's Solemn Declaration</h4>
+            <p>I solemnly declare that I am a citizen of India and all information furnished is true, complete and correct. I understand that furnishing false information will render me liable under the Passports Act, 1967, and may result in cancellation of the passport.</p>
+            <div class="check-row">
+                <input type="checkbox" id="d1">
+                <label for="d1">I declare that all information provided is true and accurate to the best of my knowledge.</label>
+            </div>
+            <div class="check-row">
+                <input type="checkbox" id="d2">
+                <label for="d2">I consent to police background and address verification at my registered residential address.</label>
+            </div>
+            <div class="check-row">
+                <input type="checkbox" id="d3">
+                <label for="d3">I confirm all uploaded documents are genuine and I am aware of the legal consequences of submitting forged documents.</label>
+            </div>
+        </div>
+
+        <div class="form-msg" id="formMsg"></div>
+
+        <div class="btn-row">
+            <button class="btn-back" onclick="history.back()">← Back</button>
+            <button class="btn-submit" id="submitBtn" onclick="submitApplication()">Submit Application →</button>
+        </div>
+    </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="overlay" id="overlay">
+    <div class="overlay-card">
+        <div class="tick">✅</div>
+        <h2>Application Submitted!</h2>
+        <p>Your passport application has been registered. Note your Application ID below for tracking.</p>
+        <div class="id-box">
+            <small>Application ID</small>
+            <strong id="showAppId">SP000000000</strong>
+        </div>
+        <p style="font-size:12px;color:#9ca3af;margin-bottom:16px;">You will be redirected to the payment page.</p>
+        <button class="btn-proceed" onclick="window.location.href='payment.html'">Proceed to Payment →</button>
+    </div>
+</div>
+
+<footer>
+    <p><strong style="color:rgba(255,255,255,0.8);">SwiftPass – Passport Automation System</strong></p>
+    <p style="margin-top:4px;">© 2026 SwiftPass | Government of India | All Rights Reserved</p>
+</footer>
+
+<script>
+    document.getElementById('dob').max = new Date().toISOString().split('T')[0];
+
+    function handleUpload(input, cardId, labelId) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File too large. Max 2MB allowed.');
+            input.value = ''; return;
+        }
+        document.getElementById(cardId).classList.add('done');
+        const name = file.name;
+        document.getElementById(labelId).textContent = '✅ ' + (name.length > 22 ? name.slice(0,20)+'…' : name);
+    }
+
+    async function submitApplication() {
+        const token = localStorage.getItem('token');
+        if (!token) { alert('Please sign in first.'); window.location.href = 'signup.html'; return; }
+
+        if (!document.getElementById('d1').checked ||
+            !document.getElementById('d2').checked ||
+            !document.getElementById('d3').checked) {
+            showMsg('Please accept all three declarations before submitting.', 'error'); return;
+        }
+
+        const required = {
+            full_name:'Full Name', dob:'Date of Birth', gender:'Gender',
+            mobile:'Mobile Number', email:'Email Address', address:'Street/Locality',
+            state:'State', city:'City', pincode:'Pincode',
+            service_type:'Passport Service', application_type:'Application Type',
+            booklet_type:'Passport Booklet', proof_type:'Proof Type', proof_number:'Document Number'
+        };
+        for (const [id, label] of Object.entries(required)) {
+            if (!document.getElementById(id)?.value?.trim()) {
+                showMsg('Please fill in: ' + label, 'error');
+                document.getElementById(id)?.focus(); return;
+            }
+        }
+
+        for (const id of ['uc-aadhaar','uc-photo','uc-birth','uc-address']) {
+            if (!document.getElementById(id).classList.contains('done')) {
+                showMsg('Please upload all mandatory documents (marked MANDATORY).', 'error'); return;
+            }
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true; btn.textContent = '⏳ Submitting...';
+
+        const body = {
+            full_name: document.getElementById('full_name').value.trim(),
+            gender: document.getElementById('gender').value,
+            dob: document.getElementById('dob').value,
+            mobile: document.getElementById('mobile').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            address: document.getElementById('address_line1').value.trim() + ', ' + document.getElementById('address').value.trim(),
+            state: document.getElementById('state').value,
+            city: document.getElementById('city').value.trim(),
+            pincode: document.getElementById('pincode').value.trim(),
+            service_type: document.getElementById('service_type').value,
+            application_type: document.getElementById('application_type').value,
+            booklet_type: document.getElementById('booklet_type').value,
+            proof_type: document.getElementById('proof_type').value,
+            proof_number: document.getElementById('proof_number').value.trim()
+        };
+
+        try {
+            const res = await fetch('/api/application/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('application_id', data.application_id);
+                document.getElementById('showAppId').textContent = data.application_id;
+                document.getElementById('overlay').classList.add('show');
+            } else {
+                showMsg('❌ ' + (data.error || 'Submission failed.'), 'error');
+                btn.disabled = false; btn.textContent = 'Submit Application →';
+            }
+        } catch(e) {
+            showMsg('❌ Server error. Please try again.', 'error');
+            btn.disabled = false; btn.textContent = 'Submit Application →';
+        }
+    }
+
+    function showMsg(text, type) {
+        const el = document.getElementById('formMsg');
+        el.textContent = text; el.className = 'form-msg ' + type;
+        el.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+</script>
+</body>
+</html>

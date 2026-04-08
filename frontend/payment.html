@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Portal | SwiftPass</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        :root {
+            --navy: #1e3a8a;
+            --blue: #2563eb;
+            --light-blue: #eff6ff;
+            --green: #16a34a;
+            --light-green: #f0fdf4;
+            --red: #dc2626;
+            --gray: #6b7280;
+            --border: #e5e7eb;
+            --white: #ffffff;
+            --bg: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+        }
+
+        header {
+            background: linear-gradient(to right, var(--navy), var(--blue));
+            color: white;
+            text-align: center;
+            padding: 22px;
+        }
+
+        header h1 { font-size: 28px; }
+
+        /* ── Main Wrapper ── */
+        .payment-wrapper {
+            width: 560px;
+            margin: 40px auto 60px;
+        }
+
+        /* ── Method Tabs ── */
+        .method-tabs {
+            display: flex;
+            background: white;
+            border-radius: 14px;
+            padding: 8px;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            width: auto;
+            margin: 0;
+        }
+
+        .tab-btn .tab-icon { font-size: 22px; }
+
+        .tab-btn.active {
+            background: var(--light-blue);
+            border-color: var(--blue);
+            color: var(--navy);
+        }
+
+        .tab-btn:hover:not(.active) { background: #f8faff; }
+
+        /* ── Panel ── */
+        .panel {
+            background: white;
+            border-radius: 16px;
+            padding: 35px 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .panel.active { display: block; }
+
+        /* ── Amount Strip ── */
+        .amount-strip {
+            background: linear-gradient(135deg, var(--navy), var(--blue));
+            color: white;
+            border-radius: 12px;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .amount-strip .label { font-size: 13px; opacity: 0.85; }
+        .amount-strip .amount { font-size: 26px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .amount-strip .app-id { font-size: 12px; opacity: 0.75; font-family: 'JetBrains Mono', monospace; }
+
+        /* ── Form Fields ── */
+        .field-group { margin-bottom: 18px; }
+
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 7px;
+        }
+
+        .field-group input, .field-group select {
+            width: 100%;
+            padding: 13px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        .field-group input:focus, .field-group select:focus {
+            outline: none;
+            border-color: var(--blue);
+            background: var(--light-blue);
+        }
+
+        .field-row { display: flex; gap: 15px; }
+        .field-row .field-group { flex: 1; }
+
+        /* Card Preview */
+        .card-preview {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 60%, #60a5fa 100%);
+            border-radius: 16px;
+            padding: 24px 28px;
+            color: white;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            min-height: 160px;
+        }
+
+        .card-preview::before {
+            content: '';
+            position: absolute;
+            top: -40px; right: -40px;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .card-preview::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -30px;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .card-chip { font-size: 28px; margin-bottom: 16px; }
+
+        .card-number-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .card-bottom .card-label { font-size: 10px; opacity: 0.7; text-transform: uppercase; margin-bottom: 2px; }
+
+        /* OTP Box */
+        .otp-section {
+            background: #fefce8;
+            border: 2px solid #fde047;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .otp-section p {
+            font-size: 13px;
+            color: #92400e;
+            margin-bottom: 14px;
+            font-weight: 500;
+        }
+
+        .otp-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .otp-inputs input {
+            width: 50px !important;
+            height: 55px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            border: 2px solid #fde047;
+            border-radius: 10px;
+            background: white;
+            color: var(--navy);
+            padding: 0;
+        }
+
+        .otp-inputs input:focus {
+            border-color: var(--blue);
+            outline: none;
+            background: var(--light-blue);
+        }
+
+        .send-otp-btn {
+            background: none;
+            border: 2px solid #92400e;
+            color: #92400e;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: auto;
+            margin: 0;
+            transition: all 0.2s;
+        }
+
+        .send-otp-btn:hover { background: #92400e; color: white; }
+        .send-otp-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* UPI Panel */
+        .upi-layout {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .qr-side {
+            flex: 1;
+            text-align: center;
+        }
+
+        .qr-box {
+            background: white;
+            border: 3px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        #qrcode canvas, #qrcode img { border-radius: 6px; }
+
+        .qr-label {
+            font-size: 12px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        .upi-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 40px;
+            color: var(--gray);
+            font-weight: 600;
+            font-size: 13px;
+            gap: 8px;
+        }
+
+        .upi-divider::before, .upi-divider::after {
+            content: '';
+            width: 1px;
+            height: 50px;
+            background: var(--border);
+        }
+
+        .upi-id-side { flex: 1.2; }
+
+        .upi-apps {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .upi-app {
+            padding: 8px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            background: white;
+            color: #374151;
+            width: auto;
+            margin: 0;
+            transition: all 0.2s;
+        }
+
+        .upi-app:hover, .upi-app.selected { border-color: var(--blue); background: var(--light-blue); color: var(--navy); }
+
+        .timer-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            margin-bottom: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Net Banking */
+        .bank-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bank-option {
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 8px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            background: white;
+            transition: all 0.2s;
+            width: auto; margin: 0;
+        }
+
+        .bank-option .bank-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+        .bank-option:hover, .bank-option.selected { border-color: var(--blue); background: var(--light-blue); color: var(--navy); }
+
+        /* Wallet */
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .wallet-option {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.2s;
+            width: auto; margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .wallet-option .w-icon { font-size: 28px; }
+        .wallet-option:hover, .wallet-option.selected { border-color: var(--blue); background: var(--light-blue); color: var(--navy); }
+
+        /* Pay Button */
+        .pay-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(to right, var(--navy), var(--blue));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s, transform 0.1s;
+            letter-spacing: 0.3px;
+        }
+
+        .pay-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+        .pay-btn:active { transform: translateY(0); }
+        .pay-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        /* Processing overlay */
+        .processing-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            color: white;
+        }
+
+        .processing-overlay.show { display: flex; }
+
+        .spinner {
+            width: 56px; height: 56px;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .processing-overlay p { font-size: 18px; font-weight: 600; }
+        .processing-overlay small { font-size: 13px; opacity: 0.7; }
+
+        /* Success Screen */
+        .success-screen {
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 50px 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .success-screen.show { display: block; }
+
+        .success-icon {
+            width: 80px; height: 80px;
+            background: var(--light-green);
+            border: 3px solid #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            margin: 0 auto 20px;
+        }
+
+        .success-screen h2 { color: var(--green); font-size: 26px; margin-bottom: 8px; }
+        .success-screen .sub { color: var(--gray); font-size: 15px; margin-bottom: 28px; }
+
+        .receipt {
+            background: #f8faff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 24px;
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 14px;
+        }
+
+        .receipt-row:last-child { border-bottom: none; }
+        .receipt-row .r-label { color: var(--gray); }
+        .receipt-row .r-value { font-weight: 600; color: #1f2937; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+        .receipt-row .r-value.green { color: var(--green); }
+
+        .track-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, var(--navy), var(--blue));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        footer {
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            padding: 16px;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        /* Secure badge */
+        .secure-badge {
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .payment-wrapper { width: 95%; }
+            .panel { padding: 24px 20px; }
+            .upi-layout { flex-direction: column; }
+            .upi-divider { flex-direction: row; }
+            .upi-divider::before, .upi-divider::after { width: 50px; height: 1px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>✈️ SwiftPass ✈️</h1>
+</header>
+
+<div class="payment-wrapper" id="mainWrapper">
+
+    <!-- Method Tabs -->
+    <div class="method-tabs">
+        <button class="tab-btn active" onclick="switchTab('upi', this)">
+            <span class="tab-icon">📱</span> UPI
+        </button>
+        <button class="tab-btn" onclick="switchTab('card', this)">
+            <span class="tab-icon">💳</span> Card
+        </button>
+        <button class="tab-btn" onclick="switchTab('netbanking', this)">
+            <span class="tab-icon">🏦</span> Net Banking
+        </button>
+        <button class="tab-btn" onclick="switchTab('wallet', this)">
+            <span class="tab-icon">👛</span> Wallet
+        </button>
+    </div>
+
+    <!-- ══════════════ UPI PANEL ══════════════ -->
+    <div class="panel active" id="panel-upi">
+        <div class="amount-strip">
+            <div>
+                <div class="label">Total Amount</div>
+                <div class="amount">₹<span class="amt-val">1500</span></div>
+            </div>
+            <div style="text-align:right;">
+                <div class="label">Application ID</div>
+                <div class="app-id" id="upiAppId">–</div>
+            </div>
+        </div>
+
+        <div class="upi-layout">
+            <!-- QR Side -->
+            <div class="qr-side">
+                <p style="font-size:13px; font-weight:600; color:#374151; margin-bottom:12px;">Scan QR Code</p>
+                <div class="qr-box">
+                    <div id="qrcode"></div>
+                </div>
+                <p class="qr-label">Scan with any UPI app</p>
+                <div class="timer-badge" id="qrTimer">⏱ Expires in 10:00</div>
+            </div>
+
+            <div class="upi-divider">OR</div>
+
+            <!-- UPI ID Side -->
+            <div class="upi-id-side">
+                <p style="font-size:13px; font-weight:600; color:#374151; margin-bottom:10px;">Pay via UPI App</p>
+
+                <div class="upi-apps">
+                    <button class="upi-app selected" onclick="selectUpiApp(this)">🔵 GPay</button>
+                    <button class="upi-app" onclick="selectUpiApp(this)">🟣 PhonePe</button>
+                    <button class="upi-app" onclick="selectUpiApp(this)">🔴 Paytm</button>
+                    <button class="upi-app" onclick="selectUpiApp(this)">⚡ BHIM</button>
+                </div>
+
+                <div class="field-group">
+                    <label>Your UPI ID</label>
+                    <input type="text" id="upiId" placeholder="yourname@upi" />
+                </div>
+
+                <div class="field-group">
+                    <label>UPI PIN (4 or 6 digits)</label>
+                    <input type="password" id="upiPin" placeholder="••••••" maxlength="6" />
+                </div>
+            </div>
+        </div>
+
+        <button class="pay-btn" onclick="processPayment('UPI')">
+            🔒 Pay ₹<span class="amt-val">1500</span> via UPI
+        </button>
+        <div class="secure-badge">🔐 256-bit SSL Encrypted &nbsp;|&nbsp; 🛡 PCI DSS Compliant</div>
+    </div>
+
+    <!-- ══════════════ CARD PANEL ══════════════ -->
+    <div class="panel" id="panel-card">
+        <div class="amount-strip">
+            <div>
+                <div class="label">Total Amount</div>
+                <div class="amount">₹<span class="amt-val">1500</span></div>
+            </div>
+            <div style="text-align:right;">
+                <div class="label">Application ID</div>
+                <div class="app-id" id="cardAppId">–</div>
+            </div>
+        </div>
+
+        <!-- Live Card Preview -->
+        <div class="card-preview">
+            <div class="card-chip">💳</div>
+            <div class="card-number-display" id="previewNumber">•••• &nbsp;•••• &nbsp;•••• &nbsp;••••</div>
+            <div class="card-bottom">
+                <div>
+                    <div class="card-label">Card Holder</div>
+                    <div id="previewName">YOUR NAME</div>
+                </div>
+                <div>
+                    <div class="card-label">Expires</div>
+                    <div id="previewExpiry">MM/YY</div>
+                </div>
+                <div style="text-align:right;">
+                    <div id="previewNetwork" style="font-size:20px;">💳</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label>Card Number</label>
+            <input type="text" id="cardNumber" placeholder="1234  5678  9012  3456"
+                maxlength="19" oninput="formatCard(this)" style="font-family:'JetBrains Mono',monospace; letter-spacing:2px;" />
+        </div>
+
+        <div class="field-group">
+            <label>Name on Card</label>
+            <input type="text" id="cardName" placeholder="As printed on card"
+                oninput="document.getElementById('previewName').textContent = this.value.toUpperCase() || 'YOUR NAME'" />
+        </div>
+
+        <div class="field-row">
+            <div class="field-group">
+                <label>Expiry Date</label>
+                <input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7"
+                    oninput="formatExpiry(this)" />
+            </div>
+            <div class="field-group">
+                <label>CVV</label>
+                <input type="password" id="cardCvv" placeholder="•••" maxlength="3"
+                    style="font-family:'JetBrains Mono',monospace; letter-spacing:4px;" />
+            </div>
+        </div>
+
+        <!-- OTP Section -->
+        <div class="otp-section" id="otpSection" style="display:none;">
+            <p>📲 OTP sent to your registered mobile number<br>
+            <strong id="maskedMobile"></strong></p>
+            <div class="otp-inputs">
+                <input type="text" maxlength="1" class="otp-digit" oninput="otpMove(this, 0)">
+                <input type="text" maxlength="1" class="otp-digit" oninput="otpMove(this, 1)">
+                <input type="text" maxlength="1" class="otp-digit" oninput="otpMove(this, 2)">
+                <input type="text" maxlength="1" class="otp-digit" oninput="otpMove(this, 3)">
+                <input type="text" maxlength="1" class="otp-digit" oninput="otpMove(this, 4)">
+                <input type="text" maxlength="1" class="otp-digit" oninput="otpMove(this, 5)">
+            </div>
+            <button class="send-otp-btn" id="resendBtn" onclick="resendOTP()">Resend OTP</button>
+            <span id="resendTimer" style="font-size:12px; color:#92400e; margin-left:8px;"></span>
+        </div>
+
+        <button class="pay-btn" id="cardPayBtn" onclick="handleCardPay()">
+            🔒 Pay ₹<span class="amt-val">1500</span> Securely
+        </button>
+        <div class="secure-badge">🔐 256-bit SSL Encrypted &nbsp;|&nbsp; 🛡 3D Secure</div>
+    </div>
+
+    <!-- ══════════════ NET BANKING PANEL ══════════════ -->
+    <div class="panel" id="panel-netbanking">
+        <div class="amount-strip">
+            <div>
+                <div class="label">Total Amount</div>
+                <div class="amount">₹<span class="amt-val">1500</span></div>
+            </div>
+            <div style="text-align:right;">
+                <div class="label">Application ID</div>
+                <div class="app-id" id="nbAppId">–</div>
+            </div>
+        </div>
+
+        <p style="font-size:13px; font-weight:600; color:#374151; margin-bottom:14px;">Select Your Bank</p>
+
+        <div class="bank-grid">
+            <button class="bank-option" onclick="selectBank(this)">
+                <span class="bank-icon">🏦</span> SBI
+            </button>
+            <button class="bank-option" onclick="selectBank(this)">
+                <span class="bank-icon">🏛</span> HDFC
+            </button>
+            <button class="bank-option" onclick="selectBank(this)">
+                <span class="bank-icon">🏢</span> ICICI
+            </button>
+            <button class="bank-option" onclick="selectBank(this)">
+                <span class="bank-icon">🏗</span> Axis
+            </button>
+            <button class="bank-option" onclick="selectBank(this)">
+                <span class="bank-icon">🏬</span> Kotak
+            </button>
+            <button class="bank-option" onclick="selectBank(this)">
+                <span class="bank-icon">🏪</span> PNB
+            </button>
+        </div>
+
+        <div class="field-group" id="nbFields" style="display:none;">
+            <label>Net Banking User ID</label>
+            <input type="text" id="nbUserId" placeholder="Enter User ID" />
+            <label style="margin-top:14px; display:block;">Password</label>
+            <input type="password" id="nbPassword" placeholder="Enter Password" style="margin-top:7px;" />
+        </div>
+
+        <button class="pay-btn" onclick="processPayment('Net Banking')">
+            🔒 Pay ₹<span class="amt-val">1500</span> via Net Banking
+        </button>
+        <div class="secure-badge">🔐 Bank-Grade Encryption &nbsp;|&nbsp; 🛡 2FA Protected</div>
+    </div>
+
+    <!-- ══════════════ WALLET PANEL ══════════════ -->
+    <div class="panel" id="panel-wallet">
+        <div class="amount-strip">
+            <div>
+                <div class="label">Total Amount</div>
+                <div class="amount">₹<span class="amt-val">1500</span></div>
+            </div>
+            <div style="text-align:right;">
+                <div class="label">Application ID</div>
+                <div class="app-id" id="walletAppId">–</div>
+            </div>
+        </div>
+
+        <p style="font-size:13px; font-weight:600; color:#374151; margin-bottom:14px;">Select Wallet</p>
+
+        <div class="wallet-grid">
+            <button class="wallet-option" onclick="selectWallet(this)">
+                <span class="w-icon">💙</span> Paytm Wallet
+            </button>
+            <button class="wallet-option" onclick="selectWallet(this)">
+                <span class="w-icon">💜</span> Amazon Pay
+            </button>
+            <button class="wallet-option" onclick="selectWallet(this)">
+                <span class="w-icon">🟠</span> Mobikwik
+            </button>
+            <button class="wallet-option" onclick="selectWallet(this)">
+                <span class="w-icon">🔴</span> Freecharge
+            </button>
+        </div>
+
+        <div class="field-group" id="walletFields" style="display:none;">
+            <label>Registered Mobile Number</label>
+            <input type="tel" id="walletMobile" placeholder="10-digit mobile number" maxlength="10" />
+        </div>
+
+        <button class="pay-btn" onclick="processPayment('Wallet')">
+            🔒 Pay ₹<span class="amt-val">1500</span> via Wallet
+        </button>
+        <div class="secure-badge">🔐 Secure Wallet Transaction</div>
+    </div>
+
+</div>
+
+<!-- Processing Overlay -->
+<div class="processing-overlay" id="processingOverlay">
+    <div class="spinner"></div>
+    <p id="processingText">Processing Payment...</p>
+    <small>Please do not close or refresh this page</small>
+</div>
+
+<!-- Success Screen -->
+<div class="payment-wrapper" id="successWrapper" style="display:none;">
+    <div class="success-screen show">
+        <div class="success-icon">✅</div>
+        <h2>Payment Successful!</h2>
+        <p class="sub">Your passport application payment has been received.</p>
+
+        <div class="receipt">
+            <div class="receipt-row">
+                <span class="r-label">Application ID</span>
+                <span class="r-value" id="recAppId">–</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Amount Paid</span>
+                <span class="r-value green" id="recAmount">₹1500</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Payment Method</span>
+                <span class="r-value" id="recMethod">–</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Transaction ID</span>
+                <span class="r-value" id="recTxnId">–</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Date & Time</span>
+                <span class="r-value" id="recDate">–</span>
+            </div>
+            <div class="receipt-row">
+                <span class="r-label">Status</span>
+                <span class="r-value green">✅ PAID</span>
+            </div>
+        </div>
+
+        <button class="track-btn" onclick="window.location.href='tracking.html'">
+            📍 Track My Application
+        </button>
+    </div>
+</div>
+
+<footer>
+    <p>© 2026 SwiftPass | Government of India &nbsp;|&nbsp; 🔐 Secured Payment Gateway</p>
+</footer>
+
+<script>
+    // ── Init ──
+    const appId = localStorage.getItem('application_id') || 'SP' + Date.now();
+    const appType = localStorage.getItem('application_type') || 'Normal';
+    const amount = appType === 'Tatkal' ? 3000 : 1500;
+
+    // Set amount everywhere
+    document.querySelectorAll('.amt-val').forEach(el => el.textContent = amount);
+    document.querySelectorAll('#upiAppId, #cardAppId, #nbAppId, #walletAppId').forEach(el => el.textContent = appId);
+
+    // ── Generate QR ──
+    new QRCode(document.getElementById("qrcode"), {
+        text: `upi://pay?pa=swiftpass@upi&pn=SwiftPass&am=${amount}&tn=Passport-${appId}&cu=INR`,
+        width: 150,
+        height: 150,
+        colorDark: "#1e3a8a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // QR countdown timer
+    let qrSeconds = 600;
+    const qrTimerEl = document.getElementById('qrTimer');
+    const qrInterval = setInterval(() => {
+        qrSeconds--;
+        const m = Math.floor(qrSeconds / 60).toString().padStart(2, '0');
+        const s = (qrSeconds % 60).toString().padStart(2, '0');
+        qrTimerEl.textContent = `⏱ Expires in ${m}:${s}`;
+        if (qrSeconds <= 0) {
+            clearInterval(qrInterval);
+            qrTimerEl.textContent = '❌ QR Expired – Refresh page';
+            qrTimerEl.style.background = '#fee2e2';
+            qrTimerEl.style.color = '#991b1b';
+        }
+    }, 1000);
+
+    // ── Tab Switching ──
+    function switchTab(tab, btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
+
+    // ── UPI ──
+    function selectUpiApp(el) {
+        document.querySelectorAll('.upi-app').forEach(a => a.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    // ── Card Live Preview ──
+    function formatCard(input) {
+        let v = input.value.replace(/\D/g, '').substring(0, 16);
+        let formatted = v.match(/.{1,4}/g)?.join('  ') || v;
+        input.value = formatted;
+
+        // Update preview
+        let display = v.padEnd(16, '•').match(/.{1,4}/g).join(' ');
+        document.getElementById('previewNumber').textContent = display;
+
+        // Card network detection
+        const networkEl = document.getElementById('previewNetwork');
+        if (v.startsWith('4')) networkEl.textContent = 'VISA';
+        else if (v.startsWith('5')) networkEl.textContent = 'MC';
+        else if (v.startsWith('6')) networkEl.textContent = 'RuPay';
+        else networkEl.textContent = '💳';
+    }
+
+    function formatExpiry(input) {
+        let v = input.value.replace(/\D/g, '');
+        if (v.length >= 2) v = v.substring(0,2) + ' / ' + v.substring(2,4);
+        input.value = v;
+        document.getElementById('previewExpiry').textContent = v || 'MM/YY';
+    }
+
+    // ── OTP Logic ──
+    let otpSent = false;
+    let resendSeconds = 0;
+
+    function otpMove(input, index) {
+        input.value = input.value.replace(/\D/g, '');
+        const digits = document.querySelectorAll('.otp-digit');
+        if (input.value && index < 5) digits[index + 1].focus();
+    }
+
+    function handleCardPay() {
+        const num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const name = document.getElementById('cardName').value;
+        const expiry = document.getElementById('cardExpiry').value;
+        const cvv = document.getElementById('cardCvv').value;
+
+        if (num.length < 16 || !name || expiry.length < 4 || cvv.length < 3) {
+            alert('Please fill all card details correctly.');
+            return;
+        }
+
+        if (!otpSent) {
+            // Show OTP section
+            document.getElementById('otpSection').style.display = 'block';
+            document.getElementById('maskedMobile').textContent = '+91 ••••••' + num.slice(-4);
+            document.getElementById('cardPayBtn').textContent = '✅ Verify OTP & Pay ₹' + amount;
+            otpSent = true;
+            startResendTimer();
+            document.querySelector('.otp-digit').focus();
+            alert('📲 Demo OTP: 1 2 3 4 5 6');
+            return;
+        }
+
+        // Verify OTP
+        const otp = Array.from(document.querySelectorAll('.otp-digit')).map(i => i.value).join('');
+        if (otp.length < 6) {
+            alert('Please enter the 6-digit OTP.');
+            return;
+        }
+        // For demo, any 6-digit OTP works
+        processPayment('Debit/Credit Card');
+    }
+
+    function startResendTimer() {
+        resendSeconds = 30;
+        const btn = document.getElementById('resendBtn');
+        const timerEl = document.getElementById('resendTimer');
+        btn.disabled = true;
+        const interval = setInterval(() => {
+            resendSeconds--;
+            timerEl.textContent = `Resend in ${resendSeconds}s`;
+            if (resendSeconds <= 0) {
+                clearInterval(interval);
+                btn.disabled = false;
+                timerEl.textContent = '';
+            }
+        }, 1000);
+    }
+
+    function resendOTP() {
+        alert('📲 New Demo OTP: 1 2 3 4 5 6');
+        startResendTimer();
+    }
+
+    // ── Net Banking ──
+    function selectBank(el) {
+        document.querySelectorAll('.bank-option').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('nbFields').style.display = 'block';
+    }
+
+    // ── Wallet ──
+    function selectWallet(el) {
+        document.querySelectorAll('.wallet-option').forEach(w => w.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('walletFields').style.display = 'block';
+    }
+
+    // ── Process Payment ──
+    async function processPayment(method) {
+        const overlay = document.getElementById('processingOverlay');
+        const steps = [
+            'Initiating secure connection...',
+            'Verifying payment details...',
+            'Communicating with bank...',
+            'Confirming transaction...'
+        ];
+
+        overlay.classList.add('show');
+
+        // Animate processing steps
+        for (let i = 0; i < steps.length; i++) {
+            document.getElementById('processingText').textContent = steps[i];
+            await new Promise(r => setTimeout(r, 700));
+        }
+
+        try {
+            const res = await fetch('/api/payment/confirm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ application_id: appId, amount })
+            });
+            const data = await res.json();
+
+            overlay.classList.remove('show');
+
+            if (data.success) {
+                showSuccess(method);
+            } else {
+                alert('Payment failed: ' + (data.error || 'Unknown error'));
+            }
+        } catch (err) {
+            overlay.classList.remove('show');
+            // Even if server error, show success for demo
+            showSuccess(method);
+        }
+    }
+
+    function showSuccess(method) {
+        const txnId = 'TXN' + Date.now();
+        const now = new Date().toLocaleString('en-IN');
+
+        document.getElementById('recAppId').textContent = appId;
+        document.getElementById('recAmount').textContent = '₹' + amount;
+        document.getElementById('recMethod').textContent = method;
+        document.getElementById('recTxnId').textContent = txnId;
+        document.getElementById('recDate').textContent = now;
+
+        document.getElementById('mainWrapper').style.display = 'none';
+        document.getElementById('successWrapper').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
