@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Officer Dashboard | SwiftPass Admin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+        :root {
+            --navy: #1e3a8a;
+            --blue: #2563eb;
+            --light-blue: #eff6ff;
+            --green: #16a34a;
+            --light-green: #f0fdf4;
+            --yellow: #d97706;
+            --light-yellow: #fffbeb;
+            --red: #dc2626;
+            --light-red: #fef2f2;
+            --purple: #7c3aed;
+            --gray: #6b7280;
+            --border: #e5e7eb;
+            --bg: #f1f5f9;
+            --white: #ffffff;
+            --sidebar-w: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: linear-gradient(180deg, #0f172a 0%, #1e3a8a 100%);
+            color: white;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo h2 { font-size: 20px; font-weight: 700; }
+        .sidebar-logo p { font-size: 12px; opacity: 0.6; margin-top: 3px; }
+
+        .sidebar-nav { flex: 1; padding: 16px 12px; }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.7);
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-item.active { background: rgba(255,255,255,0.15); color: white; font-weight: 600; }
+        .nav-item .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+
+        .badge {
+            margin-left: auto;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+            opacity: 0.6;
+        }
+
+        /* ── Main ── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            background: white;
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar h1 { font-size: 20px; font-weight: 700; color: #111827; }
+        .topbar .officer-info { display: flex; align-items: center; gap: 10px; }
+        .officer-avatar {
+            width: 38px; height: 38px;
+            background: var(--navy);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 15px;
+        }
+
+        .officer-name { font-size: 14px; font-weight: 600; color: #374151; }
+        .officer-role { font-size: 12px; color: var(--gray); }
+
+        /* ── Content ── */
+        .content { padding: 28px 30px; flex: 1; }
+
+        /* ── Pages ── */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ── Stats Row ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+        }
+
+        .stat-icon.blue { background: var(--light-blue); }
+        .stat-icon.green { background: var(--light-green); }
+        .stat-icon.yellow { background: var(--light-yellow); }
+        .stat-icon.red { background: var(--light-red); }
+
+        .stat-info .stat-num { font-size: 26px; font-weight: 700; color: #111827; }
+        .stat-info .stat-label { font-size: 13px; color: var(--gray); margin-top: 2px; }
+
+        /* ── Table Card ── */
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .table-header h3 { font-size: 16px; font-weight: 700; color: #111827; }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-row select, .filter-row input {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #374151;
+            background: white;
+        }
+
+        .filter-row select:focus, .filter-row input:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            background: #f8faff;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #374151;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafafa; }
+
+        .app-id-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        /* Status Pills */
+        .pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .pill-submitted    { background: #fef3c7; color: #92400e; }
+        .pill-payment      { background: #d1fae5; color: #065f46; }
+        .pill-review       { background: #dbeafe; color: #1e40af; }
+        .pill-verified     { background: #ede9fe; color: #5b21b6; }
+        .pill-dispatched   { background: #d1fae5; color: #065f46; }
+        .pill-rejected     { background: #fee2e2; color: #991b1b; }
+        .pill-pending      { background: #f3f4f6; color: #6b7280; }
+        .pill-cleared      { background: #d1fae5; color: #065f46; }
+        .pill-failed       { background: #fee2e2; color: #991b1b; }
+
+        /* Action Buttons */
+        .action-btns { display: flex; gap: 6px; }
+
+        .btn-sm {
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+            white-space: nowrap;
+            width: auto; margin: 0;
+        }
+
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: var(--navy); }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-success:hover { background: var(--green); }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: var(--red); }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: var(--yellow); }
+        .btn-outline { background: white; color: var(--navy); border: 2px solid var(--navy); }
+        .btn-outline:hover { background: var(--navy); color: white; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            width: 540px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+
+        .modal h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .modal .modal-sub {
+            font-size: 13px;
+            color: var(--gray);
+            margin-bottom: 24px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid var(--border);
+            border-radius: 9px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+
+        .form-group textarea { resize: vertical; min-height: 80px; }
+
+        .form-row { display: flex; gap: 14px; }
+        .form-row .form-group { flex: 1; }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn-md {
+            padding: 10px 22px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            width: auto; margin: 0;
+            transition: all 0.2s;
+        }
+
+        /* ── Detail View ── */
+        .detail-section {
+            background: #f8faff;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+        }
+
+        .detail-section h4 {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .detail-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .detail-field .df-label {
+            font-size: 11px;
+            color: var(--gray);
+            margin-bottom: 2px;
+        }
+
+        .detail-field .df-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        /* ── Appointment Card ── */
+        .appt-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .appt-info h4 { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+        .appt-info p { font-size: 13px; color: var(--gray); }
+        .appt-time { text-align: right; }
+        .appt-time .time { font-size: 20px; font-weight: 700; color: var(--navy); font-family: 'JetBrains Mono', monospace; }
+        .appt-time .date { font-size: 12px; color: var(--gray); margin-top: 2px; }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 15px;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1f2937;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { border-left: 4px solid #22c55e; }
+        .toast.error { border-left: 4px solid #ef4444; }
+    </style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<div class="sidebar">
+    <div class="sidebar-logo">
+        <h2>✈️ SwiftPass</h2>
+        <p>Officer Control Panel</p>
+    </div>
+
+    <nav class="sidebar-nav">
+        <button class="nav-item active" onclick="showPage('dashboard', this)">
+            <span class="nav-icon">📊</span> Dashboard
+        </button>
+        <button class="nav-item" onclick="showPage('applications', this)">
+            <span class="nav-icon">📋</span> All Applications
+            <span class="badge" id="pendingBadge">0</span>
+        </button>
+        <button class="nav-item" onclick="showPage('appointments', this)">
+            <span class="nav-icon">📅</span> Appointments
+        </button>
+        <button class="nav-item" onclick="showPage('documents', this)">
+            <span class="nav-icon">📄</span> Document Verification
+        </button>
+        <button class="nav-item" onclick="showPage('police', this)">
+            <span class="nav-icon">🚔</span> Police Verification
+        </button>
+    </nav>
+
+    <div class="sidebar-footer">
+        🔒 Secure Admin Panel v1.0
+    </div>
+</div>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="officer-info">
+            <div class="officer-avatar">PO</div>
+            <div>
+                <div class="officer-name">Passport Officer</div>
+                <div class="officer-role">Regional Passport Office</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ══ DASHBOARD PAGE ══ -->
+        <div class="page active" id="page-dashboard">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📋</div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statTotal">–</div>
+                        <div class="stat-label">Total Applications</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">⏳</div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statPending">–</div>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statVerified">–</div>
+                        <div class="stat-label">Verified</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">📅</div>
+                    <div class="stat-info">
+                        <div class="stat-num" id="statAppointments">–</div>
+                        <div class="stat-label">Appointments Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Appointments -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>📅 Today's Appointments</h3>
+                </div>
+                <div style="padding: 20px;" id="todayApptList">
+                    <div class="loading">Loading appointments...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ ALL APPLICATIONS PAGE ══ -->
+        <div class="page" id="page-applications">
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>All Applications</h3>
+                    <div class="filter-row">
+                        <input type="text" id="searchInput" placeholder="🔍 Search by name / ID..." oninput="filterApplications()" style="width:220px;" />
+                        <select id="statusFilter" onchange="filterApplications()">
+                            <option value="">All Status</option>
+                            <option>Submitted</option>
+                            <option>Payment Done</option>
+                            <option>Under Review</option>
+                            <option>Verified</option>
+                            <option>Dispatched</option>
+                            <option>Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="applicationsTableContainer">
+                    <div class="loading">Loading applications...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ APPOINTMENTS PAGE ══ -->
+        <div class="page" id="page-appointments">
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>📅 Appointment Schedule</h3>
+                    <div class="filter-row">
+                        <input type="date" id="apptDateFilter" onchange="loadAppointments()" />
+                    </div>
+                </div>
+                <div id="appointmentsContainer">
+                    <div class="loading">Loading appointments...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ DOCUMENT VERIFICATION PAGE ══ -->
+        <div class="page" id="page-documents">
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>📄 Document Verification Queue</h3>
+                </div>
+                <div id="documentsContainer">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ POLICE VERIFICATION PAGE ══ -->
+        <div class="page" id="page-police">
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>🚔 Police Verification Status</h3>
+                </div>
+                <div id="policeContainer">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+
+<!-- View Application Modal -->
+<div class="modal-overlay" id="viewModal">
+    <div class="modal">
+        <h3>Application Details</h3>
+        <p class="modal-sub" id="viewAppId">–</p>
+        <div id="viewModalContent"></div>
+        <div class="modal-actions">
+            <button class="btn-md btn-outline" onclick="closeModal('viewModal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Schedule Appointment Modal -->
+<div class="modal-overlay" id="appointmentModal">
+    <div class="modal">
+        <h3>📅 Schedule Appointment</h3>
+        <p class="modal-sub" id="apptAppId">–</p>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Appointment Date</label>
+                <input type="date" id="apptDate" min="" />
+            </div>
+            <div class="form-group">
+                <label>Appointment Time</label>
+                <select id="apptTime">
+                    <option>09:00 AM</option>
+                    <option>09:30 AM</option>
+                    <option>10:00 AM</option>
+                    <option>10:30 AM</option>
+                    <option>11:00 AM</option>
+                    <option>11:30 AM</option>
+                    <option>12:00 PM</option>
+                    <option>02:00 PM</option>
+                    <option>02:30 PM</option>
+                    <option>03:00 PM</option>
+                    <option>03:30 PM</option>
+                    <option>04:00 PM</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Passport Seva Kendra</label>
+            <select id="apptCenter">
+                <option>PSK Chennai – Anna Nagar</option>
+                <option>PSK Chennai – Adyar</option>
+                <option>PSK Coimbatore</option>
+                <option>PSK Madurai</option>
+                <option>PSK Trichy</option>
+                <option>PSK Salem</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Officer Notes (optional)</label>
+            <textarea id="apptNotes" placeholder="Any special instructions for the applicant..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-md btn-outline" onclick="closeModal('appointmentModal')">Cancel</button>
+            <button class="btn-md btn-primary" onclick="saveAppointment()">📅 Schedule</button>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal-overlay" id="statusModal">
+    <div class="modal" style="width:420px;">
+        <h3>Update Application Status</h3>
+        <p class="modal-sub" id="statusAppId">–</p>
+
+        <div class="form-group">
+            <label>New Status</label>
+            <select id="newStatus">
+                <option>Submitted</option>
+                <option>Payment Done</option>
+                <option>Under Review</option>
+                <option>Verified</option>
+                <option>Dispatched</option>
+                <option>Rejected</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="rejectReasonGroup" style="display:none;">
+            <label>Rejection Reason</label>
+            <textarea id="rejectReason" placeholder="Reason for rejection..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-md btn-outline" onclick="closeModal('statusModal')">Cancel</button>
+            <button class="btn-md btn-success" onclick="saveStatus()">✅ Update Status</button>
+        </div>
+    </div>
+</div>
+
+<!-- Document Verify Modal -->
+<div class="modal-overlay" id="docModal">
+    <div class="modal" style="width:460px;">
+        <h3>📄 Document Verification</h3>
+        <p class="modal-sub" id="docAppId">–</p>
+
+        <div class="form-group">
+            <label>Document Verification Status</label>
+            <select id="docStatus">
+                <option value="Pending">⏳ Pending</option>
+                <option value="Verified">✅ Documents Verified</option>
+                <option value="Rejected">❌ Documents Rejected</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Officer Remarks</label>
+            <textarea id="docRemarks" placeholder="Enter remarks about documents..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-md btn-outline" onclick="closeModal('docModal')">Cancel</button>
+            <button class="btn-md btn-success" onclick="saveDocVerification()">💾 Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Police Verify Modal -->
+<div class="modal-overlay" id="policeModal">
+    <div class="modal" style="width:460px;">
+        <h3>🚔 Police Verification</h3>
+        <p class="modal-sub" id="policeAppId">–</p>
+
+        <div class="form-group">
+            <label>Police Verification Status</label>
+            <select id="policeStatus">
+                <option value="Pending">⏳ Pending</option>
+                <option value="Cleared">✅ Cleared</option>
+                <option value="Failed">❌ Failed / Flagged</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Verification Notes</label>
+            <textarea id="policeNotes" placeholder="Notes from police verification..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-md btn-outline" onclick="closeModal('policeModal')">Cancel</button>
+            <button class="btn-md btn-success" onclick="savePoliceVerification()">💾 Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    let allApplications = [];
+    let currentAppId = '';
+
+    // ── Page Navigation ──
+    function showPage(page, btn) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        btn.classList.add('active');
+
+        const titles = {
+            dashboard: 'Dashboard',
+            applications: 'All Applications',
+            appointments: 'Appointment Schedule',
+            documents: 'Document Verification',
+            police: 'Police Verification'
+        };
+        document.getElementById('pageTitle').textContent = titles[page];
+
+        if (page === 'applications') loadApplications();
+        if (page === 'appointments') { loadAppointments(); }
+        if (page === 'documents') loadDocQueue();
+        if (page === 'police') loadPoliceQueue();
+        if (page === 'dashboard') loadDashboard();
+    }
+
+    // ── Toast ──
+    function showToast(msg, type = 'success') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast show ${type}`;
+        setTimeout(() => t.className = 'toast', 3000);
+    }
+
+    // ── Modals ──
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+    }
+
+    // Click outside to close
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('show');
+        });
+    });
+
+    // ── Status reject reason toggle ──
+    document.getElementById('newStatus').addEventListener('change', function() {
+        document.getElementById('rejectReasonGroup').style.display =
+            this.value === 'Rejected' ? 'block' : 'none';
+    });
+
+    // ── Status pill helper ──
+    function statusPill(status) {
+        const map = {
+            'Submitted': 'pill-submitted',
+            'Payment Done': 'pill-payment',
+            'Under Review': 'pill-review',
+            'Verified': 'pill-verified',
+            'Dispatched': 'pill-dispatched',
+            'Rejected': 'pill-rejected',
+            'Pending': 'pill-pending',
+            'Cleared': 'pill-cleared',
+            'Failed': 'pill-failed'
+        };
+        return `<span class="pill ${map[status] || 'pill-pending'}">${status || 'Pending'}</span>`;
+    }
+
+    // ══════════════════════════════
+    // DASHBOARD
+    // ══════════════════════════════
+    async function loadDashboard() {
+        try {
+            const res = await fetch('/api/admin/applications');
+            const apps = await res.json();
+            allApplications = apps;
+
+            document.getElementById('statTotal').textContent = apps.length;
+            document.getElementById('statPending').textContent =
+                apps.filter(a => a.status === 'Payment Done' || a.status === 'Submitted').length;
+            document.getElementById('statVerified').textContent =
+                apps.filter(a => a.status === 'Verified' || a.status === 'Dispatched').length;
+            document.getElementById('pendingBadge').textContent =
+                apps.filter(a => a.status === 'Payment Done').length;
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayAppts = apps.filter(a => a.appointment_date === today);
+            document.getElementById('statAppointments').textContent = todayAppts.length;
+
+            renderTodayAppointments(todayAppts);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function renderTodayAppointments(apps) {
+        const container = document.getElementById('todayApptList');
+        if (!apps.length) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><p>No appointments scheduled for today.</p></div>';
+            return;
+        }
+
+        container.innerHTML = apps.map(a => `
+            <div class="appt-card">
+                <div class="appt-info">
+                    <h4>${a.full_name}</h4>
+                    <p>${a.application_id} &nbsp;·&nbsp; ${a.service_type} &nbsp;·&nbsp; ${a.appointment_center || '–'}</p>
+                </div>
+                <div class="appt-time">
+                    <div class="time">${a.appointment_time || '–'}</div>
+                    <div class="date">${statusPill(a.status)}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ══════════════════════════════
+    // ALL APPLICATIONS
+    // ══════════════════════════════
+    async function loadApplications() {
+        try {
+            const res = await fetch('/api/admin/applications');
+            allApplications = await res.json();
+            renderApplicationsTable(allApplications);
+        } catch (err) {
+            document.getElementById('applicationsTableContainer').innerHTML =
+                '<div class="loading">❌ Failed to load applications.</div>';
+        }
+    }
+
+    function renderApplicationsTable(apps) {
+        if (!apps.length) {
+            document.getElementById('applicationsTableContainer').innerHTML =
+                '<div class="empty-state"><div class="empty-icon">📋</div><p>No applications found.</p></div>';
+            return;
+        }
+
+        document.getElementById('applicationsTableContainer').innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>App ID</th>
+                        <th>Applicant</th>
+                        <th>Service</th>
+                        <th>Applied On</th>
+                        <th>Status</th>
+                        <th>Appointment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${apps.map(a => `
+                        <tr>
+                            <td class="app-id-cell">${a.application_id}</td>
+                            <td>
+                                <div style="font-weight:600;">${a.full_name}</div>
+                                <div style="font-size:12px;color:#9ca3af;">${a.email}</div>
+                            </td>
+                            <td>${a.service_type}<br><span style="font-size:12px;color:#9ca3af;">${a.application_type}</span></td>
+                            <td>${new Date(a.created_at).toLocaleDateString('en-IN')}</td>
+                            <td>${statusPill(a.status)}</td>
+                            <td>${a.appointment_date
+                                ? `<span style="font-size:13px;font-weight:600;color:#1e3a8a;">${a.appointment_date}<br>${a.appointment_time}</span>`
+                                : '<span style="color:#9ca3af;font-size:13px;">Not scheduled</span>'
+                            }</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-sm btn-outline" onclick="viewApplication('${a.application_id}')">👁 View</button>
+                                    <button class="btn-sm btn-primary" onclick="openAppointmentModal('${a.application_id}')">📅</button>
+                                    <button class="btn-sm btn-warning" onclick="openStatusModal('${a.application_id}', '${a.status}')">✏️</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function filterApplications() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value;
+        const filtered = allApplications.filter(a => {
+            const matchSearch = a.full_name.toLowerCase().includes(search) ||
+                                a.application_id.toLowerCase().includes(search);
+            const matchStatus = !status || a.status === status;
+            return matchSearch && matchStatus;
+        });
+        renderApplicationsTable(filtered);
+    }
+
+    // ── View Application ──
+    async function viewApplication(appId) {
+        currentAppId = appId;
+        const app = allApplications.find(a => a.application_id === appId);
+        if (!app) return;
+
+        document.getElementById('viewAppId').textContent = appId;
+        document.getElementById('viewModalContent').innerHTML = `
+            <div class="detail-section">
+                <h4>Personal Details</h4>
+                <div class="detail-grid-2">
+                    <div class="detail-field"><div class="df-label">Full Name</div><div class="df-value">${app.full_name}</div></div>
+                    <div class="detail-field"><div class="df-label">Gender</div><div class="df-value">${app.gender}</div></div>
+                    <div class="detail-field"><div class="df-label">Date of Birth</div><div class="df-value">${app.dob || '–'}</div></div>
+                    <div class="detail-field"><div class="df-label">Mobile</div><div class="df-value">${app.mobile}</div></div>
+                    <div class="detail-field"><div class="df-label">Email</div><div class="df-value">${app.email}</div></div>
+                    <div class="detail-field"><div class="df-label">City / State</div><div class="df-value">${app.city}, ${app.state}</div></div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <h4>Application Details</h4>
+                <div class="detail-grid-2">
+                    <div class="detail-field"><div class="df-label">Service</div><div class="df-value">${app.service_type}</div></div>
+                    <div class="detail-field"><div class="df-label">Type</div><div class="df-value">${app.application_type}</div></div>
+                    <div class="detail-field"><div class="df-label">Booklet</div><div class="df-value">${app.booklet_type}</div></div>
+                    <div class="detail-field"><div class="df-label">Proof Type</div><div class="df-value">${app.proof_type}</div></div>
+                    <div class="detail-field"><div class="df-label">Proof Number</div><div class="df-value">${app.proof_number}</div></div>
+                    <div class="detail-field"><div class="df-label">Status</div><div class="df-value">${statusPill(app.status)}</div></div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <h4>Verification Status</h4>
+                <div class="detail-grid-2">
+                    <div class="detail-field"><div class="df-label">Documents</div><div class="df-value">${statusPill(app.documents_status || 'Pending')}</div></div>
+                    <div class="detail-field"><div class="df-label">Police Check</div><div class="df-value">${statusPill(app.police_status || 'Pending')}</div></div>
+                    <div class="detail-field"><div class="df-label">Appointment</div><div class="df-value">${app.appointment_date ? app.appointment_date + ' ' + app.appointment_time : 'Not scheduled'}</div></div>
+                    <div class="detail-field"><div class="df-label">Center</div><div class="df-value">${app.appointment_center || '–'}</div></div>
+                </div>
+            </div>
+            ${app.officer_notes ? `<div class="detail-section"><h4>Officer Notes</h4><p style="font-size:14px;color:#374151;">${app.officer_notes}</p></div>` : ''}
+            ${app.rejected_reason ? `<div class="detail-section" style="background:#fff5f5;border:1px solid #fca5a5;"><h4 style="color:#dc2626;">Rejection Reason</h4><p style="font-size:14px;color:#991b1b;">${app.rejected_reason}</p></div>` : ''}
+        `;
+        document.getElementById('viewModal').classList.add('show');
+    }
+
+    // ── Appointment Modal ──
+    function openAppointmentModal(appId) {
+        currentAppId = appId;
+        document.getElementById('apptAppId').textContent = appId;
+        // Set min date to today
+        document.getElementById('apptDate').min = new Date().toISOString().split('T')[0];
+        document.getElementById('appointmentModal').classList.add('show');
+    }
+
+    async function saveAppointment() {
+        const date = document.getElementById('apptDate').value;
+        const time = document.getElementById('apptTime').value;
+        const center = document.getElementById('apptCenter').value;
+        const notes = document.getElementById('apptNotes').value;
+
+        if (!date) { alert('Please select a date.'); return; }
+
+        try {
+            const res = await fetch('/api/admin/schedule-appointment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    application_id: currentAppId,
+                    appointment_date: date,
+                    appointment_time: time,
+                    appointment_center: center,
+                    officer_notes: notes
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeModal('appointmentModal');
+                showToast('✅ Appointment scheduled successfully!');
+                loadApplications();
+                loadDashboard();
+            }
+        } catch (err) {
+            showToast('❌ Failed to schedule appointment.', 'error');
+        }
+    }
+
+    // ── Status Modal ──
+    function openStatusModal(appId, currentStatus) {
+        currentAppId = appId;
+        document.getElementById('statusAppId').textContent = appId;
+        document.getElementById('newStatus').value = currentStatus;
+        document.getElementById('statusModal').classList.add('show');
+    }
+
+    async function saveStatus() {
+        const status = document.getElementById('newStatus').value;
+        const reason = document.getElementById('rejectReason').value;
+
+        try {
+            const res = await fetch('/api/admin/update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    application_id: currentAppId,
+                    status,
+                    rejected_reason: reason
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeModal('statusModal');
+                showToast('✅ Status updated to: ' + status);
+                loadApplications();
+                loadDashboard();
+            }
+        } catch (err) {
+            showToast('❌ Failed to update status.', 'error');
+        }
+    }
+
+    // ══════════════════════════════
+    // APPOINTMENTS PAGE
+    // ══════════════════════════════
+    async function loadAppointments() {
+        const dateFilter = document.getElementById('apptDateFilter').value;
+        try {
+            const res = await fetch('/api/admin/applications');
+            const apps = await res.json();
+            const scheduled = apps.filter(a => a.appointment_date &&
+                (!dateFilter || a.appointment_date === dateFilter));
+
+            if (!scheduled.length) {
+                document.getElementById('appointmentsContainer').innerHTML =
+                    '<div class="empty-state"><div class="empty-icon">📅</div><p>No appointments found.</p></div>';
+                return;
+            }
+
+            document.getElementById('appointmentsContainer').innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>App ID</th>
+                            <th>Applicant</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Center</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${scheduled.sort((a,b) => a.appointment_time > b.appointment_time ? 1:-1).map(a => `
+                            <tr>
+                                <td class="app-id-cell">${a.application_id}</td>
+                                <td><div style="font-weight:600">${a.full_name}</div><div style="font-size:12px;color:#9ca3af">${a.mobile}</div></td>
+                                <td>${a.appointment_date}</td>
+                                <td><strong>${a.appointment_time}</strong></td>
+                                <td style="font-size:13px">${a.appointment_center || '–'}</td>
+                                <td>${statusPill(a.status)}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-sm btn-primary" onclick="openAppointmentModal('${a.application_id}')">📅 Reschedule</button>
+                                        <button class="btn-sm btn-warning" onclick="openStatusModal('${a.application_id}', '${a.status}')">✏️ Status</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (err) {
+            document.getElementById('appointmentsContainer').innerHTML =
+                '<div class="loading">❌ Failed to load appointments.</div>';
+        }
+    }
+
+    // ══════════════════════════════
+    // DOCUMENT VERIFICATION
+    // ══════════════════════════════
+    async function loadDocQueue() {
+        try {
+            const res = await fetch('/api/admin/applications');
+            const apps = await res.json();
+            const queue = apps.filter(a =>
+                a.status === 'Payment Done' || a.status === 'Under Review' || a.documents_status === 'Pending'
+            );
+
+            if (!queue.length) {
+                document.getElementById('documentsContainer').innerHTML =
+                    '<div class="empty-state"><div class="empty-icon">📄</div><p>No pending document verifications.</p></div>';
+                return;
+            }
+
+            document.getElementById('documentsContainer').innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>App ID</th>
+                            <th>Applicant</th>
+                            <th>Proof Type</th>
+                            <th>Proof Number</th>
+                            <th>Doc Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${queue.map(a => `
+                            <tr>
+                                <td class="app-id-cell">${a.application_id}</td>
+                                <td><div style="font-weight:600">${a.full_name}</div></td>
+                                <td>${a.proof_type}</td>
+                                <td style="font-family:monospace">${a.proof_number}</td>
+                                <td>${statusPill(a.documents_status || 'Pending')}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-sm btn-success" onclick="openDocModal('${a.application_id}')">📄 Verify</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (err) {
+            document.getElementById('documentsContainer').innerHTML =
+                '<div class="loading">❌ Failed to load.</div>';
+        }
+    }
+
+    function openDocModal(appId) {
+        currentAppId = appId;
+        document.getElementById('docAppId').textContent = appId;
+        document.getElementById('docModal').classList.add('show');
+    }
+
+    async function saveDocVerification() {
+        const status = document.getElementById('docStatus').value;
+        const remarks = document.getElementById('docRemarks').value;
+
+        try {
+            const res = await fetch('/api/admin/verify-documents', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    application_id: currentAppId,
+                    documents_status: status,
+                    officer_notes: remarks
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeModal('docModal');
+                showToast('✅ Document verification saved!');
+                loadDocQueue();
+            }
+        } catch (err) {
+            showToast('❌ Failed to save.', 'error');
+        }
+    }
+
+    // ══════════════════════════════
+    // POLICE VERIFICATION
+    // ══════════════════════════════
+    async function loadPoliceQueue() {
+        try {
+            const res = await fetch('/api/admin/applications');
+            const apps = await res.json();
+
+            document.getElementById('policeContainer').innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>App ID</th>
+                            <th>Applicant</th>
+                            <th>Address</th>
+                            <th>Police Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${apps.map(a => `
+                            <tr>
+                                <td class="app-id-cell">${a.application_id}</td>
+                                <td><div style="font-weight:600">${a.full_name}</div><div style="font-size:12px;color:#9ca3af">${a.mobile}</div></td>
+                                <td style="font-size:13px">${a.address || '–'}, ${a.city}, ${a.state} – ${a.pincode}</td>
+                                <td>${statusPill(a.police_status || 'Pending')}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn-sm btn-success" onclick="openPoliceModal('${a.application_id}')">🚔 Update</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (err) {
+            document.getElementById('policeContainer').innerHTML =
+                '<div class="loading">❌ Failed to load.</div>';
+        }
+    }
+
+    function openPoliceModal(appId) {
+        currentAppId = appId;
+        document.getElementById('policeAppId').textContent = appId;
+        document.getElementById('policeModal').classList.add('show');
+    }
+
+    async function savePoliceVerification() {
+        const status = document.getElementById('policeStatus').value;
+        const notes = document.getElementById('policeNotes').value;
+
+        try {
+            const res = await fetch('/api/admin/verify-police', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    application_id: currentAppId,
+                    police_status: status,
+                    officer_notes: notes
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeModal('policeModal');
+                showToast('✅ Police verification updated!');
+                loadPoliceQueue();
+            }
+        } catch (err) {
+            showToast('❌ Failed to save.', 'error');
+        }
+    }
+
+    // ── Init ──
+    loadDashboard();
+
+    // Set today's date in appointment filter
+    document.getElementById('apptDateFilter').value = new Date().toISOString().split('T')[0];
+</script>
+
+</body>
+</html>

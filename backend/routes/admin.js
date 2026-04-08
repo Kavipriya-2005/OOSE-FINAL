@@ -1,68 +1,105 @@
-// backend/routes/admin.js
-// Simple admin route to update application status
-// Add this to server.js: app.use('/api/admin', require('./routes/admin'));
-
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-const VALID_STATUSES = [
-  'Submitted',
-  'Payment Done',
-  'Under Review',
-  'Police Verification',
-  'Verified',
-  'Printing',
-  'Dispatched',
-  'Rejected'
-];
-
-// Update application status (admin use)
-// POST /api/admin/update-status
-// Body: { application_id, status, admin_key }
-router.post('/update-status', async (req, res) => {
-  const { application_id, status, admin_key } = req.body;
-
-  // Simple admin key check (replace with proper auth in production)
-  if (admin_key !== process.env.ADMIN_KEY) {
-    return res.status(403).json({ error: 'Unauthorized.' });
-  }
-
-  if (!VALID_STATUSES.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status value.', valid: VALID_STATUSES });
-  }
-
-  try {
-    const [result] = await db.query(
-      'UPDATE applications SET status = ? WHERE application_id = ?',
-      [status, application_id]
-    );
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Application not found.' });
+// GET all applications
+router.get('/applications', async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT * FROM applications ORDER BY created_at DESC`
+        );
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to fetch applications.' });
     }
-    res.json({ success: true, message: `Status updated to "${status}"` });
-  } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
-  }
 });
 
-// GET all applications (admin dashboard)
-router.get('/applications', async (req, res) => {
-  const { admin_key } = req.query;
-  if (admin_key !== process.env.ADMIN_KEY) {
-    return res.status(403).json({ error: 'Unauthorized.' });
-  }
+// SCHEDULE appointment
+router.post('/schedule-appointment', async (req, res) => {
+    const { application_id, appointment_date, appointment_time, appointment_center, officer_notes } = req.body;
+    try {
+        await db.query(
+            `UPDATE applications SET
+                appointment_date = ?,
+                appointment_time = ?,
+                appointment_center = ?,
+                officer_notes = ?,
+                status = CASE WHEN status = 'Payment Done' THEN 'Under Review' ELSE status END
+             WHERE application_id = ?`,
+            [appointment_date, appointment_time, appointment_center, officer_notes, application_id]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to schedule appointment.' });
+    }
+});
 
-  try {
-    const [rows] = await db.query(
-      `SELECT application_id, full_name, email, service_type, 
-       application_type, status, created_at 
-       FROM applications ORDER BY created_at DESC`
-    );
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: 'Server error.' });
-  }
+// UPDATE status
+router.post('/update-status', async (req, res) => {
+    const { application_id, status, rejected_reason } = req.body;
+    try {
+        await db.query(
+            `UPDATE applications SET status = ?, rejected_reason = ? WHERE application_id = ?`,
+            [status, rejected_reason || null, application_id]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update status.' });
+    }
+});
+
+// VERIFY documents
+router.post('/verify-documents', async (req, res) => {
+    const { application_id, documents_status, officer_notes } = req.body;
+    try {
+        await db.query(
+            `UPDATE applications SET documents_status = ?, officer_notes = ? WHERE application_id = ?`,
+            [documents_status, officer_notes, application_id]
+        );
+        // Auto-advance status if both verified
+        if (documents_status === 'Verified') {
+            const [rows] = await db.query(
+                'SELECT police_status FROM applications WHERE application_id = ?',
+                [application_id]
+            );
+            if (rows[0]?.police_status === 'Cleared') {
+                await db.query(
+                    "UPDATE applications SET status = 'Verified' WHERE application_id = ?",
+                    [application_id]
+                );
+            }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to verify documents.' });
+    }
+});
+
+// POLICE verification
+router.post('/verify-police', async (req, res) => {
+    const { application_id, police_status, officer_notes } = req.body;
+    try {
+        await db.query(
+            `UPDATE applications SET police_status = ?, officer_notes = ? WHERE application_id = ?`,
+            [police_status, officer_notes, application_id]
+        );
+        // Auto-advance status if both cleared
+        if (police_status === 'Cleared') {
+            const [rows] = await db.query(
+                'SELECT documents_status FROM applications WHERE application_id = ?',
+                [application_id]
+            );
+            if (rows[0]?.documents_status === 'Verified') {
+                await db.query(
+                    "UPDATE applications SET status = 'Verified' WHERE application_id = ?",
+                    [application_id]
+                );
+            }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update police verification.' });
+    }
 });
 
 module.exports = router;

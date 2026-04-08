@@ -16,8 +16,8 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/application', require('./routes/application'));
 app.use('/api/payment', require('./routes/payment'));
 app.use('/api/track', require('./routes/tracking'));
+app.use('/api/admin', require('./routes/admin'));   // ← ADD THIS LINE
 
-// Default route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index1.html'));
 });

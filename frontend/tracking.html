@@ -7,249 +7,101 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .track-box {
-            background: white;
-            width: 580px;
-            margin: 40px auto;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            background: white; width: 620px;
+            margin: 40px auto; padding: 40px;
+            border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);
         }
-
-        .track-box h2 {
-            color: #1e3a8a;
-            text-align: center;
-            margin-bottom: 8px;
-            font-size: 24px;
-        }
-
-        .track-box .subtitle {
-            text-align: center;
-            color: #6b7280;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        .search-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
+        .track-box h2 { color: #1e3a8a; text-align: center; margin-bottom: 6px; font-size: 24px; }
+        .track-box .subtitle { text-align: center; color: #6b7280; font-size: 14px; margin-bottom: 28px; }
+        .search-row { display: flex; gap: 10px; margin-bottom: 24px; }
         .search-row input {
-            flex: 1;
-            padding: 14px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 15px;
-            font-family: monospace;
-            letter-spacing: 1px;
+            flex: 1; padding: 14px 16px;
+            border: 2px solid #e5e7eb; border-radius: 10px;
+            font-size: 15px; font-family: monospace; letter-spacing: 1px;
         }
-
-        .search-row input:focus {
-            outline: none;
-            border-color: #2563eb;
-        }
-
+        .search-row input:focus { outline: none; border-color: #2563eb; }
         .search-row button {
             padding: 14px 24px;
             background: linear-gradient(to right, #1e3a8a, #2563eb);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            width: auto;
-            margin: 0;
-            white-space: nowrap;
+            color: white; border: none; border-radius: 10px;
+            font-size: 15px; font-weight: 700; cursor: pointer;
+            width: auto; margin: 0;
         }
-
-        .search-row button:hover { opacity: 0.9; }
-
-        /* Result Card */
-        .result-card {
-            display: none;
-            background: #f8faff;
-            border: 2px solid #e0e7ff;
-            border-radius: 14px;
-            padding: 28px;
-        }
-
+        .result-card { display: none; }
         .result-card.show { display: block; }
-
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .status-header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white; border-radius: 14px; padding: 24px 28px;
+            display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px;
-            padding-bottom: 16px;
-            border-bottom: 2px dashed #e0e7ff;
         }
-
-        .result-header .app-id {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e3a8a;
-            font-family: monospace;
+        .status-header .app-id-label { font-size: 12px; opacity: 0.75; margin-bottom: 4px; }
+        .status-header .app-id-val { font-size: 22px; font-weight: 700; font-family: monospace; }
+        .status-header .status-big {
+            font-size: 15px; font-weight: 700;
+            background: rgba(255,255,255,0.2); padding: 8px 18px; border-radius: 20px;
         }
-
-        .status-badge {
-            padding: 7px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+        .info-item { background: #f8faff; border: 1px solid #e0e7ff; border-radius: 10px; padding: 14px 16px; }
+        .info-item .i-label { font-size: 11px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+        .info-item .i-value { font-size: 15px; font-weight: 600; color: #1f2937; }
+        .appointment-box {
+            background: #fffbeb; border: 2px solid #fde047;
+            border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; display: none;
         }
-
-        .status-Submitted       { background: #fef3c7; color: #92400e; }
-        .status-Payment-Done    { background: #d1fae5; color: #065f46; }
-        .status-Under-Review    { background: #dbeafe; color: #1e40af; }
-        .status-Verified        { background: #ede9fe; color: #5b21b6; }
-        .status-Dispatched      { background: #d1fae5; color: #065f46; }
-        .status-Rejected        { background: #fee2e2; color: #991b1b; }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .detail-item .d-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #9ca3af;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .detail-item .d-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-
-        /* Progress Stepper */
-        .progress-section {
-            margin-top: 10px;
-        }
-
-        .progress-section h3 {
-            font-size: 14px;
-            font-weight: 700;
-            color: #374151;
-            margin-bottom: 18px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stepper {
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-            padding: 0 10px;
-        }
-
-        .stepper::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 30px;
-            right: 30px;
-            height: 3px;
-            background: #e5e7eb;
-            z-index: 0;
-        }
-
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            z-index: 1;
-            flex: 1;
-        }
-
-        .step-circle {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: 700;
-            border: 3px solid #e5e7eb;
-            background: white;
-            transition: all 0.3s;
-        }
-
-        .step-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #9ca3af;
-            text-align: center;
-            max-width: 70px;
-        }
-
-        .step.done .step-circle {
-            background: #1e3a8a;
-            border-color: #1e3a8a;
-            color: white;
-        }
-
+        .appointment-box.show { display: block; }
+        .appointment-box h3 { color: #92400e; font-size: 15px; margin-bottom: 14px; }
+        .appt-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .appt-detail .ad-label { font-size: 11px; color: #92400e; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; }
+        .appt-detail .ad-value { font-size: 14px; font-weight: 700; color: #78350f; }
+        .verify-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+        .verify-card { border-radius: 12px; padding: 18px; display: flex; align-items: center; gap: 14px; }
+        .verify-card.pending  { background: #f3f4f6; border: 2px solid #e5e7eb; }
+        .verify-card.verified { background: #f0fdf4; border: 2px solid #86efac; }
+        .verify-card.rejected { background: #fef2f2; border: 2px solid #fca5a5; }
+        .verify-card.cleared  { background: #f0fdf4; border: 2px solid #86efac; }
+        .verify-card.failed   { background: #fef2f2; border: 2px solid #fca5a5; }
+        .verify-icon { font-size: 28px; }
+        .verify-info .v-title { font-size: 13px; font-weight: 700; color: #374151; }
+        .verify-info .v-status { font-size: 15px; font-weight: 700; margin-top: 2px; }
+        .v-status.green { color: #16a34a; }
+        .v-status.red   { color: #dc2626; }
+        .v-status.gray  { color: #9ca3af; }
+        .progress-section { margin-bottom: 24px; }
+        .progress-section h3 { font-size: 13px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 18px; }
+        .stepper { display: flex; justify-content: space-between; position: relative; padding: 0 10px; }
+        .stepper::before { content: ''; position: absolute; top: 21px; left: 30px; right: 30px; height: 3px; background: #e5e7eb; z-index: 0; }
+        .step { display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 1; flex: 1; }
+        .step-circle { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 3px solid #e5e7eb; background: white; transition: all 0.3s; }
+        .step-label { font-size: 11px; font-weight: 600; color: #9ca3af; text-align: center; max-width: 65px; }
+        .step.done .step-circle { background: #1e3a8a; border-color: #1e3a8a; color: white; }
         .step.done .step-label { color: #1e3a8a; }
-
-        .step.active .step-circle {
-            background: #2563eb;
-            border-color: #2563eb;
-            color: white;
-            box-shadow: 0 0 0 5px rgba(37,99,235,0.2);
-        }
-
+        .step.active .step-circle { background: #2563eb; border-color: #2563eb; color: white; box-shadow: 0 0 0 6px rgba(37,99,235,0.15); }
         .step.active .step-label { color: #2563eb; font-weight: 700; }
-
-        /* Error box */
-        .error-box {
-            display: none;
-            background: #fee2e2;
-            border: 2px solid #fca5a5;
-            border-radius: 10px;
-            padding: 16px 20px;
-            color: #991b1b;
-            font-weight: 600;
-            text-align: center;
-        }
-
+        .step.rejected .step-circle { background: #dc2626; border-color: #dc2626; color: white; }
+        .step.rejected .step-label { color: #dc2626; }
+        .notes-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; display: none; }
+        .notes-box.show { display: block; }
+        .notes-box h4 { color: #1e40af; font-size: 13px; margin-bottom: 5px; }
+        .notes-box p { color: #1e40af; font-size: 14px; }
+        .rejection-box { background: #fef2f2; border: 2px solid #fca5a5; border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: none; }
+        .rejection-box.show { display: block; }
+        .rejection-box h4 { color: #dc2626; font-size: 14px; margin-bottom: 6px; }
+        .rejection-box p { color: #991b1b; font-size: 14px; }
+        .error-box { display: none; background: #fee2e2; border: 2px solid #fca5a5; border-radius: 10px; padding: 16px; color: #991b1b; font-weight: 600; text-align: center; }
         .error-box.show { display: block; }
-
-        /* Auto-fill hint */
-        .autofill-hint {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 13px;
-            color: #1e40af;
-            margin-bottom: 20px;
-            display: none;
-        }
-
+        .autofill-hint { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #1e40af; margin-bottom: 18px; display: none; }
         .autofill-hint.show { display: block; }
-        .autofill-hint span { font-weight: 700; font-family: monospace; }
-
-        @media (max-width: 640px) {
-            .track-box { width: 95%; padding: 24px 18px; }
-            .detail-grid { grid-template-columns: 1fr; }
-            .step-label { font-size: 10px; max-width: 55px; }
+        .back-home { display: block; text-align: center; margin-top: 18px; padding: 13px; background: linear-gradient(to right, #1e3a8a, #2563eb); color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; }
+        @media (max-width: 660px) {
+            .track-box { width: 95%; padding: 24px 16px; }
+            .info-grid, .verify-row, .appt-details { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>✈️ SwiftPass ✈️</h1>
-</header>
+<header><h1>✈️ SwiftPass ✈️</h1></header>
 
 <nav>
     <a href="index1.html">Home</a>
@@ -259,99 +111,94 @@
 </nav>
 
 <div class="track-box">
-    <h2>📍 Track Application</h2>
-    <p class="subtitle">Enter your Application ID to check real-time status</p>
+    <h2>📍 Track Your Application</h2>
+    <p class="subtitle">Get real-time status including appointment, document & police verification</p>
 
-    <!-- Auto-fill hint if application_id is in localStorage -->
     <div class="autofill-hint" id="autofillHint">
-        💡 Your recent application: <span id="hintAppId"></span> —
-        <a href="#" onclick="autoFill()" style="color:#2563eb;">Track it now</a>
+        💡 Your recent application: <span id="hintAppId" style="font-weight:700;font-family:monospace;"></span> —
+        <a href="#" onclick="autoFill(); return false;" style="color:#2563eb;font-weight:700;">Track now</a>
     </div>
 
     <div class="search-row">
-        <input type="text" id="trackInput" placeholder="e.g. SP1748293847" />
+        <input type="text" id="trackInput" placeholder="Enter Application ID  e.g. SP1748293847" />
         <button onclick="trackApplication()">🔍 Track</button>
     </div>
 
-    <!-- Error -->
-    <div class="error-box" id="errorBox">
-        ❌ Application not found. Please check the ID and try again.
-    </div>
+    <div class="error-box" id="errorBox">❌ Application not found. Please check your Application ID.</div>
 
-    <!-- Result -->
     <div class="result-card" id="resultCard">
 
-        <div class="result-header">
+        <div class="status-header">
             <div>
-                <div style="font-size:12px; color:#9ca3af; margin-bottom:3px;">APPLICATION ID</div>
-                <div class="app-id" id="resAppId">–</div>
+                <div class="app-id-label">APPLICATION ID</div>
+                <div class="app-id-val" id="resAppId">–</div>
             </div>
-            <div id="resBadge"></div>
+            <div class="status-big" id="resStatusBig">–</div>
         </div>
 
-        <div class="detail-grid">
-            <div class="detail-item">
-                <div class="d-label">Applicant Name</div>
-                <div class="d-value" id="resName">–</div>
-            </div>
-            <div class="detail-item">
-                <div class="d-label">Service Type</div>
-                <div class="d-value" id="resService">–</div>
-            </div>
-            <div class="detail-item">
-                <div class="d-label">Application Type</div>
-                <div class="d-value" id="resType">–</div>
-            </div>
-            <div class="detail-item">
-                <div class="d-label">Applied On</div>
-                <div class="d-value" id="resDate">–</div>
+        <div class="info-grid">
+            <div class="info-item"><div class="i-label">Applicant Name</div><div class="i-value" id="resName">–</div></div>
+            <div class="info-item"><div class="i-label">Service Type</div><div class="i-value" id="resService">–</div></div>
+            <div class="info-item"><div class="i-label">Application Type</div><div class="i-value" id="resType">–</div></div>
+            <div class="info-item"><div class="i-label">Applied On</div><div class="i-value" id="resDate">–</div></div>
+        </div>
+
+        <div class="appointment-box" id="apptBox">
+            <h3>📅 Your Appointment Details</h3>
+            <div class="appt-details">
+                <div class="appt-detail"><div class="ad-label">Date</div><div class="ad-value" id="apptDate">–</div></div>
+                <div class="appt-detail"><div class="ad-label">Time</div><div class="ad-value" id="apptTime">–</div></div>
+                <div class="appt-detail"><div class="ad-label">Center</div><div class="ad-value" id="apptCenter">–</div></div>
             </div>
         </div>
 
-        <!-- Progress Stepper -->
+        <div class="verify-row">
+            <div class="verify-card pending" id="docCard">
+                <div class="verify-icon">📄</div>
+                <div class="verify-info">
+                    <div class="v-title">Document Verification</div>
+                    <div class="v-status gray" id="docStatusEl">Pending</div>
+                </div>
+            </div>
+            <div class="verify-card pending" id="policeCard">
+                <div class="verify-icon">🚔</div>
+                <div class="verify-info">
+                    <div class="v-title">Police Verification</div>
+                    <div class="v-status gray" id="policeStatusEl">Pending</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-box" id="notesBox">
+            <h4>📝 Officer Notes</h4>
+            <p id="officerNotes">–</p>
+        </div>
+
+        <div class="rejection-box" id="rejectionBox">
+            <h4>❌ Application Rejected</h4>
+            <p id="rejectionReason">–</p>
+        </div>
+
         <div class="progress-section">
             <h3>Application Progress</h3>
             <div class="stepper">
-                <div class="step" id="step0">
-                    <div class="step-circle">📝</div>
-                    <div class="step-label">Submitted</div>
-                </div>
-                <div class="step" id="step1">
-                    <div class="step-circle">💳</div>
-                    <div class="step-label">Payment Done</div>
-                </div>
-                <div class="step" id="step2">
-                    <div class="step-circle">🔍</div>
-                    <div class="step-label">Under Review</div>
-                </div>
-                <div class="step" id="step3">
-                    <div class="step-circle">✅</div>
-                    <div class="step-label">Verified</div>
-                </div>
-                <div class="step" id="step4">
-                    <div class="step-circle">📦</div>
-                    <div class="step-label">Dispatched</div>
-                </div>
+                <div class="step" id="step0"><div class="step-circle">📝</div><div class="step-label">Submitted</div></div>
+                <div class="step" id="step1"><div class="step-circle">💳</div><div class="step-label">Payment Done</div></div>
+                <div class="step" id="step2"><div class="step-circle">🔍</div><div class="step-label">Under Review</div></div>
+                <div class="step" id="step3"><div class="step-circle">✅</div><div class="step-label">Verified</div></div>
+                <div class="step" id="step4"><div class="step-circle">📦</div><div class="step-label">Dispatched</div></div>
             </div>
         </div>
+
+        <a href="index1.html" class="back-home">🏠 Back to Home</a>
     </div>
 </div>
 
-<footer>
-    <p>© 2026 Passport Automation System | Government of India</p>
-</footer>
+<footer><p>© 2026 Passport Automation System | Government of India</p></footer>
 
 <script>
-    // Status to step index mapping
-    const statusSteps = {
-        'Submitted': 0,
-        'Payment Done': 1,
-        'Under Review': 2,
-        'Verified': 3,
-        'Dispatched': 4
-    };
+    const statusSteps = { 'Submitted':0, 'Payment Done':1, 'Under Review':2, 'Verified':3, 'Dispatched':4 };
 
-    // Auto-fill hint from localStorage
     const savedAppId = localStorage.getItem('application_id');
     if (savedAppId) {
         document.getElementById('autofillHint').classList.add('show');
@@ -366,15 +213,13 @@
 
     async function trackApplication() {
         const appId = document.getElementById('trackInput').value.trim();
+        if (!appId) { alert('Please enter an Application ID.'); return; }
 
-        if (!appId) {
-            alert('Please enter an Application ID.');
-            return;
-        }
-
-        // Hide previous results
         document.getElementById('resultCard').classList.remove('show');
         document.getElementById('errorBox').classList.remove('show');
+        document.getElementById('notesBox').classList.remove('show');
+        document.getElementById('rejectionBox').classList.remove('show');
+        document.getElementById('apptBox').classList.remove('show');
 
         try {
             const res = await fetch('/api/track/' + appId);
@@ -385,42 +230,59 @@
                 return;
             }
 
-            // Populate result
             document.getElementById('resAppId').textContent = data.application_id;
+            document.getElementById('resStatusBig').textContent = data.status || 'Submitted';
             document.getElementById('resName').textContent = data.full_name || '–';
             document.getElementById('resService').textContent = data.service_type || '–';
             document.getElementById('resType').textContent = data.application_type || '–';
-            document.getElementById('resDate').textContent =
-                data.created_at ? new Date(data.created_at).toLocaleDateString('en-IN', {
-                    day: '2-digit', month: 'short', year: 'numeric'
-                }) : '–';
+            document.getElementById('resDate').textContent = data.created_at
+                ? new Date(data.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) : '–';
 
-            // Status badge
-            const status = data.status || 'Submitted';
-            const badgeClass = 'status-' + status.replace(/\s+/g, '-');
-            document.getElementById('resBadge').innerHTML =
-                `<span class="status-badge ${badgeClass}">${status}</span>`;
+            if (data.appointment_date) {
+                document.getElementById('apptBox').classList.add('show');
+                document.getElementById('apptDate').textContent = new Date(data.appointment_date).toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+                document.getElementById('apptTime').textContent = data.appointment_time || '–';
+                document.getElementById('apptCenter').textContent = data.appointment_center || '–';
+            }
 
-            // Update stepper
-            const currentStep = statusSteps[status] ?? 0;
+            const docStatus = data.documents_status || 'Pending';
+            document.getElementById('docCard').className = 'verify-card ' + docStatus.toLowerCase();
+            document.getElementById('docStatusEl').textContent = docStatus;
+            document.getElementById('docStatusEl').className = 'v-status ' + (docStatus==='Verified'?'green':docStatus==='Rejected'?'red':'gray');
+
+            const polStatus = data.police_status || 'Pending';
+            document.getElementById('policeCard').className = 'verify-card ' + polStatus.toLowerCase();
+            document.getElementById('policeStatusEl').textContent = polStatus;
+            document.getElementById('policeStatusEl').className = 'v-status ' + (polStatus==='Cleared'?'green':polStatus==='Failed'?'red':'gray');
+
+            if (data.officer_notes) {
+                document.getElementById('notesBox').classList.add('show');
+                document.getElementById('officerNotes').textContent = data.officer_notes;
+            }
+
+            if (data.status === 'Rejected' && data.rejected_reason) {
+                document.getElementById('rejectionBox').classList.add('show');
+                document.getElementById('rejectionReason').textContent = data.rejected_reason;
+            }
+
+            const currentStep = statusSteps[data.status] ?? 0;
+            const isRejected = data.status === 'Rejected';
             for (let i = 0; i <= 4; i++) {
-                const stepEl = document.getElementById('step' + i);
-                stepEl.classList.remove('done', 'active');
-                if (i < currentStep) stepEl.classList.add('done');
-                else if (i === currentStep) stepEl.classList.add('active');
+                const el = document.getElementById('step' + i);
+                el.classList.remove('done','active','rejected');
+                if (isRejected && i === currentStep) el.classList.add('rejected');
+                else if (i < currentStep) el.classList.add('done');
+                else if (i === currentStep) el.classList.add('active');
             }
 
             document.getElementById('resultCard').classList.add('show');
-
         } catch (err) {
             document.getElementById('errorBox').classList.add('show');
         }
     }
 
-    // Allow pressing Enter key to search
-    document.getElementById('trackInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') trackApplication();
-    });
+    document.getElementById('trackInput').addEventListener('keypress', e => { if (e.key==='Enter') trackApplication(); });
+    if (savedAppId) setTimeout(trackApplication, 400);
 </script>
 </body>
 </html>
