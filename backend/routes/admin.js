@@ -26,10 +26,11 @@ router.post('/schedule-appointment', async (req, res) => {
                 officer_notes = ?,
                 status = CASE WHEN status = 'Payment Done' THEN 'Under Review' ELSE status END
              WHERE application_id = ?`,
-            [appointment_date, appointment_time, appointment_center, officer_notes, application_id]
+            [appointment_date, appointment_time, appointment_center, officer_notes || null, application_id]
         );
         res.json({ success: true });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Failed to schedule appointment.' });
     }
 });
@@ -54,9 +55,9 @@ router.post('/verify-documents', async (req, res) => {
     try {
         await db.query(
             `UPDATE applications SET documents_status = ?, officer_notes = ? WHERE application_id = ?`,
-            [documents_status, officer_notes, application_id]
+            [documents_status, officer_notes || null, application_id]
         );
-        // Auto-advance status if both verified
+        // Auto-advance to Verified if both checks passed
         if (documents_status === 'Verified') {
             const [rows] = await db.query(
                 'SELECT police_status FROM applications WHERE application_id = ?',
@@ -81,9 +82,9 @@ router.post('/verify-police', async (req, res) => {
     try {
         await db.query(
             `UPDATE applications SET police_status = ?, officer_notes = ? WHERE application_id = ?`,
-            [police_status, officer_notes, application_id]
+            [police_status, officer_notes || null, application_id]
         );
-        // Auto-advance status if both cleared
+        // Auto-advance to Verified if both checks passed
         if (police_status === 'Cleared') {
             const [rows] = await db.query(
                 'SELECT documents_status FROM applications WHERE application_id = ?',

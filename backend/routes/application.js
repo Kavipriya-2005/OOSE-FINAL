@@ -27,7 +27,18 @@ router.post('/submit', verifyToken, async (req, res) => {
     );
     res.json({ success: true, application_id: appId });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to submit application.' });
+    console.error('❌ Application submit failed:', {
+      code: err?.code,
+      errno: err?.errno,
+      sqlState: err?.sqlState,
+      message: err?.message
+    });
+    res.status(500).json({
+      error: 'Failed to submit application.',
+      details: process.env.NODE_ENV === 'production'
+        ? undefined
+        : { code: err?.code, message: err?.message }
+    });
   }
 });
 

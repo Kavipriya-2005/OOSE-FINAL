@@ -105,9 +105,8 @@
 
 <nav>
     <a href="index1.html">Home</a>
-    <a href="apply.html">Apply</a>
-    <a href="payment.html">Payment</a>
-    <a href="tracking.html">Track Status</a>
+    <a href="admin.html" style="background:#ef4444; padding:6px 14px; border-radius:6px; color:white;">🔐 Officer</a>
+
 </nav>
 
 <div class="track-box">
@@ -240,8 +239,11 @@
 
             if (data.appointment_date) {
                 document.getElementById('apptBox').classList.add('show');
-                document.getElementById('apptDate').textContent = new Date(data.appointment_date).toLocaleDateString('en-IN', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
-                document.getElementById('apptTime').textContent = data.appointment_time || '–';
+const parts = data.appointment_date.split('T')[0].split('-');
+const apptDateObj = new Date(parts[0], parts[1]-1, parts[2]);
+document.getElementById('apptDate').textContent = apptDateObj.toLocaleDateString('en-IN', {
+    weekday:'long', day:'2-digit', month:'long', year:'numeric'
+});                document.getElementById('apptTime').textContent = data.appointment_time || '–';
                 document.getElementById('apptCenter').textContent = data.appointment_center || '–';
             }
 

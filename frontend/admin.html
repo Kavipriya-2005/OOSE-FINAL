@@ -1096,58 +1096,65 @@
     // ══════════════════════════════
     // APPOINTMENTS PAGE
     // ══════════════════════════════
+    
     async function loadAppointments() {
-        const dateFilter = document.getElementById('apptDateFilter').value;
-        try {
-            const res = await fetch('/api/admin/applications');
-            const apps = await res.json();
-            const scheduled = apps.filter(a => a.appointment_date &&
-                (!dateFilter || a.appointment_date === dateFilter));
+    const dateFilter = document.getElementById('apptDateFilter').value;
+    try {
+        const res = await fetch('/api/admin/applications');
+        const apps = await res.json();
 
-            if (!scheduled.length) {
-                document.getElementById('appointmentsContainer').innerHTML =
-                    '<div class="empty-state"><div class="empty-icon">📅</div><p>No appointments found.</p></div>';
-                return;
-            }
+        // Show ALL appointments, or filter by date if date is selected
+        const scheduled = apps.filter(a => {
+            if (!a.appointment_date) return false;
+            if (!dateFilter) return true; // show all if no date selected
+            // Compare just the date part (ignore time/timezone)
+            return a.appointment_date.split('T')[0] === dateFilter;
+        });
 
-            document.getElementById('appointmentsContainer').innerHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>App ID</th>
-                            <th>Applicant</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Center</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${scheduled.sort((a,b) => a.appointment_time > b.appointment_time ? 1:-1).map(a => `
-                            <tr>
-                                <td class="app-id-cell">${a.application_id}</td>
-                                <td><div style="font-weight:600">${a.full_name}</div><div style="font-size:12px;color:#9ca3af">${a.mobile}</div></td>
-                                <td>${a.appointment_date}</td>
-                                <td><strong>${a.appointment_time}</strong></td>
-                                <td style="font-size:13px">${a.appointment_center || '–'}</td>
-                                <td>${statusPill(a.status)}</td>
-                                <td>
-                                    <div class="action-btns">
-                                        <button class="btn-sm btn-primary" onclick="openAppointmentModal('${a.application_id}')">📅 Reschedule</button>
-                                        <button class="btn-sm btn-warning" onclick="openStatusModal('${a.application_id}', '${a.status}')">✏️ Status</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-        } catch (err) {
+        if (!scheduled.length) {
             document.getElementById('appointmentsContainer').innerHTML =
-                '<div class="loading">❌ Failed to load appointments.</div>';
+                '<div class="empty-state"><div class="empty-icon">📅</div><p>No appointments found for this date.</p></div>';
+            return;
         }
+
+        document.getElementById('appointmentsContainer').innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>App ID</th>
+                        <th>Applicant</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Center</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${scheduled.sort((a,b) => a.appointment_time > b.appointment_time ? 1:-1).map(a => `
+                        <tr>
+                            <td class="app-id-cell">${a.application_id}</td>
+                            <td><div style="font-weight:600">${a.full_name}</div><div style="font-size:12px;color:#9ca3af">${a.mobile}</div></td>
+                            <td>${a.appointment_date ? a.appointment_date.split('T')[0] : '–'}</td>
+                            <td><strong>${a.appointment_time}</strong></td>
+                            <td style="font-size:13px">${a.appointment_center || '–'}</td>
+                            <td>${statusPill(a.status)}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-sm btn-primary" onclick="openAppointmentModal('${a.application_id}')">📅 Reschedule</button>
+                                    <button class="btn-sm btn-warning" onclick="openStatusModal('${a.application_id}', '${a.status}')">✏️ Status</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (err) {
+        document.getElementById('appointmentsContainer').innerHTML =
+            '<div class="loading">❌ Failed to load appointments.</div>';
     }
+}
 
     // ══════════════════════════════
     // DOCUMENT VERIFICATION
@@ -1310,7 +1317,6 @@
     loadDashboard();
 
     // Set today's date in appointment filter
-    document.getElementById('apptDateFilter').value = new Date().toISOString().split('T')[0];
 </script>
 
 </body>
